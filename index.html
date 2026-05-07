@@ -76,7 +76,7 @@
       <a href="#menu" class="btn-ghost">Explore Menu</a>
     </div>
     <div class="hero-stats">
-      <div class="hero-stat"><span class="hero-stat-num" data-target="150">0</span><span class="hero-stat-plus">+</span><div class="hero-stat-label">Menu Items</iv></div>
+      <div class="hero-stat"><span class="hero-stat-num" data-target="150">0</span><span class="hero-stat-plus">+</span><div class="hero-stat-label">Menu Items</div></div>
       <div class="hero-stat-div"></div>
       <div class="hero-stat"><span class="hero-stat-num" data-target="5000">0</span><span class="hero-stat-plus">+</span><div class="hero-stat-label">Happy Guests</div></div>
       <div class="hero-stat-div"></div>
@@ -145,7 +145,7 @@
         <div class="booking-info-icon">📍</div>
         <div>
           <div class="booking-info-title">Location</div>
-          <div class="booking-info-text">Sanghar-Hyderabad Road, Sindh</div>
+          <div class="booking-info-text">Hyderabad road-Sanghar, Sindh</div>
         </div>
       </div>
       <div class="booking-info-item">
@@ -265,8 +265,8 @@
       </div>
       <div class="cart-totals" id="cartTotals" style="display:none">
         <div class="cart-total-row"><span>Subtotal</span><span id="cartSubtotal">Rs. 0</span></div>
-        <div class="cart-total-row"><span>Delivery</span><span>Rs. 50</span></div>
-        <div class="cart-total-row cart-total-final"><span>Total</span><span id="cartTotal">Rs. 50</span></div>
+        <div class="cart-total-row"><span>Delivery</span><span>Rs. 100</span></div>
+        <div class="cart-total-row cart-total-final"><span>Total</span><span id="cartTotal">Rs. 100</span></div>
       </div>
       <div class="delivery-form" id="deliveryForm">
         <h4>Delivery Details</h4>
@@ -325,7 +325,7 @@
     <div class="about-content">
       <div class="section-label">Our Story</div>
       <h2 class="section-title">360° of Authentic Taste</h2>
-      <p class="about-text">Welcome to <strong>Mirchi 360</strong> — where every dish is crafted with love, tradition, and the finest spices. Located in the heart of <strong>Tando Adam, Sanghar</strong>, we bring you a full circle of culinary excellence.</p>
+      <p class="about-text">Welcome to <strong>Mirchi 360</strong> — where every dish is crafted with love, tradition, and the finest spices. Located in the heart of <strong>Hyderabad road, Sanghar</strong>, we bring you a full circle of culinary excellence.</p>
       <p class="about-text">From sizzling Karahis to mouthwatering BBQ platters, crispy fast food to comforting Desi Handi — our menu spans the full 360 degrees of Pakistani cuisine and beyond.</p>
       <div class="about-contacts">
         <a href="tel:+923324187360" class="about-contact-btn">📞 0332-4187360</a>
@@ -363,7 +363,7 @@
       <div class="contact-card">
         <div class="contact-card-icon">📍</div>
         <div class="contact-card-title">Address</div>
-        <div class=contact-card-textt">Sanghar - Hyderabad Road,<br>Sanghar, Sindh, Pakistan</div>
+        <div class="contact-card-text">Sanghar - Hyderabad Road,<br>Sanghar, Sindh, Pakistan</div>
       </div>
       <div class="contact-card">
         <div class="contact-card-icon">📞</div>
@@ -528,12 +528,59 @@
       </div>
       <div class="form-row">
         <div class="form-group">
+          <label>Emoji / Icon</label>
+          <input type="text" id="itemEmoji" placeholder="🌶️" class="admin-input"/>
+        </div>
+        <div class="form-group">
+          <label>Price Type *</label>
+          <select id="itemPriceType" class="admin-input" onchange="togglePriceFields()">
+            <option value="single">Single Price</option>
+            <option value="halfFull">Half / Full</option>
+            <option value="sml">Small / Medium / Large</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Single Price -->
+      <div id="priceSingle">
+        <div class="form-group">
           <label>Price (Rs.) *</label>
           <input type="number" id="itemPrice" placeholder="e.g. 450" class="admin-input"/>
         </div>
-        <div class="form-group">
-          <label>Emoji / Icon</label>
-          <input type="text" id="itemEmoji" placeholder="🌶️" class="admin-input"/>
+      </div>
+
+      <!-- Half / Full -->
+      <div id="priceHalfFull" style="display:none">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Half Price (Rs.)</label>
+            <input type="number" id="itemPriceHalf" placeholder="e.g. 350" class="admin-input"/>
+          </div>
+          <div class="form-group">
+            <label>Full Price (Rs.)</label>
+            <input type="number" id="itemPriceFull" placeholder="e.g. 650" class="admin-input"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Small / Medium / Large -->
+      <div id="priceSML" style="display:none">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Small Price (Rs.)</label>
+            <input type="number" id="itemPriceS" placeholder="e.g. 250" class="admin-input"/>
+          </div>
+          <div class="form-group">
+            <label>Medium Price (Rs.)</label>
+            <input type="number" id="itemPriceM" placeholder="e.g. 450" class="admin-input"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Large Price (Rs.)</label>
+            <input type="number" id="itemPriceL" placeholder="e.g. 650" class="admin-input"/>
+          </div>
+          <div class="form-group"></div>
         </div>
       </div>
       <div class="form-group">
@@ -597,7 +644,7 @@
   <div class="footer-top">
     <div class="footer-brand">
       <div class="footer-logo">MIRCHI <span>360°</span></div>
-      <p>Three Sixty Degrees of Authentic Pakistani Flavour. Located in Hyderabad road, Sanghar, Pakistan.</p>
+      <p>Three Sixty Degrees of Authentic Pakistani Flavour. Located in Sanghar, Sindh, Pakistan.</p>
       <div class="footer-socials">
         <a href="https://wa.me/923324187360" target="_blank">💬</a>
         <a href="https://maps.app.goo.gl/iECvdpyygA3gvBbB6" target="_blank">📍</a>
@@ -650,3 +697,4 @@
 <script src="app.js"></script>
 </body>
 </html>
+
