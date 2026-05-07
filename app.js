@@ -1,874 +1,710 @@
-/* =============================================
-   MIRCHI 360° — app.js
-   All functionality: Menu, Booking, Cart, Admin, AI Assistant
-============================================= */
+// ===== MIRCHI 360° – COMPLETE APP LOGIC =====
 
-'use strict';
+// ===== MENU DATA (from menu images) =====
+const MENU_DATA = [
+  // DESI ITEMS
+  { id: 1, cat: 'desi', name: 'Royal Sindhi Chicken Biryani', emoji: '🍚', desc: 'Masaledar Sindhi style biryani – Mirchi 360 ki khaas recipe', prices: { Small: 1050, Large: 1800 } },
+  { id: 2, cat: 'desi', name: 'Chicken Reshmi Paneer Handi', emoji: '🍲', desc: 'Creamy reshmi chicken with paneer – rich aur lajawab', prices: { Small: 1300, Large: 2300 } },
+  { id: 3, cat: 'desi', name: 'Mutton Biryani', emoji: '🍛', desc: 'Juicy mutton pieces with aromatic basmati rice', prices: { Small: 1250, Large: 2800 } },
+  { id: 4, cat: 'desi', name: 'Royal Chicken Handi', emoji: '🍲', desc: 'Signature royal recipe handi – must try!', prices: { Small: 1250, Large: 2300 } },
+  { id: 5, cat: 'desi', name: 'Mutton Handi', emoji: '🥘', desc: 'Desi ghee mein pakaya gaya khaas mutton handi', prices: { Small: 2100, Large: 3600 } },
+  { id: 6, cat: 'desi', name: 'Chicken Makhni Handi', emoji: '🍲', desc: 'Butter rich makhni gravy with tender chicken', prices: { Small: 1300, Large: 2300 } },
+  { id: 7, cat: 'desi', name: 'Daal Makhni', emoji: '🫕', desc: 'Slow-cooked creamy black daal – comfort food at its best', prices: { Small: 800, Large: 1400 } },
+  { id: 8, cat: 'desi', name: 'Chicken White Handi', emoji: '🍲', desc: 'Creamy white gravy handi – mild aur delicious', prices: { Small: 1300, Large: 2200 } },
+  { id: 9, cat: 'desi', name: 'Vegetable Biryani', emoji: '🍚', desc: 'Fragrant veg biryani – fresh vegetables with aromatic rice', prices: { Small: 800, Large: 1400 } },
+  { id: 10, cat: 'desi', name: 'Tikka Biryani', emoji: '🍗', desc: 'Succulent tikka pieces layered with biryani rice', prices: { Small: 1150, Large: 2000 } },
+  { id: 11, cat: 'desi', name: 'Nawabi Biryani', emoji: '👑', desc: 'Luxurious Nawabi style biryani – royal experience', prices: { Small: 1300, Large: 2300 } },
 
-// ===== STATE =====
-let menuItems = JSON.parse(localStorage.getItem('mirchi_menu')) || getDefaultMenu();
-let bookings = JSON.parse(localStorage.getItem('mirchi_bookings')) || [];
+  // KARAHI
+  { id: 12, cat: 'karahi', name: 'Chicken Karahi', emoji: '🍳', desc: 'Classic spicy chicken karahi – tandoor se seedha', prices: { Half: 1200, Full: 2400 } },
+  { id: 13, cat: 'karahi', name: 'Chicken Peshawari Karahi', emoji: '🍳', desc: 'Authentic Peshawari style – smoky aur bold flavours', prices: { Half: 1200, Full: 2400 } },
+  { id: 14, cat: 'karahi', name: 'Chicken White Karahi', emoji: '🥛', desc: 'Rich white karahi – doodh aur cream ke saath', prices: { Half: 1250, Full: 2500 } },
+  { id: 15, cat: 'karahi', name: 'Chicken Lahori Karahi', emoji: '🌶️', desc: 'Authentic Lahori style masala karahi', prices: { Half: 1250, Full: 2500 } },
+  { id: 16, cat: 'karahi', name: 'Chicken Brown Karahi', emoji: '🍳', desc: 'Slow-cooked brown karahi with rich gravy', prices: { Half: 1200, Full: 2300 } },
+  { id: 17, cat: 'karahi', name: 'Mutton Peshawari Karahi', emoji: '🥩', desc: 'Tender mutton Peshawari style – classic taste', prices: { Half: 2050, Full: 3800 } },
+  { id: 18, cat: 'karahi', name: 'Mutton White Karahi', emoji: '🥛', desc: 'Creamy white mutton karahi – rich aur flavorful', prices: { Half: 2150, Full: 3900 } },
+  { id: 19, cat: 'karahi', name: 'Mutton Karahi', emoji: '🥩', desc: 'Classic spicy mutton karahi – best in Sanghar', prices: { Half: 2050, Full: 3800 } },
+  { id: 20, cat: 'karahi', name: 'Mutton Lahori Karahi', emoji: '🌶️', desc: 'Bold Lahori spices with tender mutton', prices: { Half: 2150, Full: 3900 } },
+  { id: 21, cat: 'karahi', name: 'Mutton Brown Karahi', emoji: '🍳', desc: 'Rich brown gravy mutton karahi – desi favourite', prices: { Half: 2050, Full: 3800 } },
+
+  // BBQ
+  { id: 22, cat: 'bbq', name: 'Chicken Tikka', emoji: '🍗', desc: 'Juicy marinated chicken tikka from coal fire', prices: { Single: 450 } },
+  { id: 23, cat: 'bbq', name: 'Chicken Tikka Boti', emoji: '🍗', desc: 'Tender tikka boti – perfectly grilled', prices: { Single: 860 } },
+  { id: 24, cat: 'bbq', name: 'Chicken Reshmi Boti', emoji: '🍗', desc: 'Silky smooth reshmi boti – melt in mouth', prices: { Single: 860 } },
+  { id: 25, cat: 'bbq', name: 'Afghani Kabab', emoji: '🥩', desc: 'Authentic Afghani style seekh kabab', prices: { Single: 860 } },
+  { id: 26, cat: 'bbq', name: 'Chicken Gola Kabab', emoji: '🍢', desc: 'Juicy gola kabab with special masala', prices: { Single: 860 } },
+  { id: 27, cat: 'bbq', name: 'Chicken Behari Boti', emoji: '🍗', desc: 'Classic Behari style marinated boti', prices: { Single: 860 } },
+  { id: 28, cat: 'bbq', name: 'Chicken Green Boti', emoji: '💚', desc: 'Herb-marinated green boti – fresh aur delicious', prices: { Single: 860 } },
+  { id: 29, cat: 'bbq', name: 'Chicken Malai Boti', emoji: '🤍', desc: 'Creamy malai boti – soft aur tender', prices: { Single: 860 } },
+  { id: 30, cat: 'bbq', name: 'Chicken Namkeen Boti', emoji: '🧂', desc: 'Lightly spiced namkeen boti – simple aur tasty', prices: { Single: 860 } },
+  { id: 31, cat: 'bbq', name: 'BBQ Shaslik', emoji: '🍢', desc: 'Grilled chicken shaslik with vegetables', prices: { Single: 600 } },
+  { id: 32, cat: 'bbq', name: 'Dhaka Chicken', emoji: '🍗', desc: 'Special Dhaka style grilled chicken', prices: { Single: 600 } },
+  { id: 33, cat: 'bbq', name: 'Chicken Wings', emoji: '🍗', desc: 'Crispy BBQ chicken wings', prices: { Single: 600 } },
+  { id: 34, cat: 'bbq', name: 'BBQ Platter', emoji: '🥩', desc: 'Full BBQ platter – sab kuch ek saath!', prices: { Half: 2800, Full: 4300 } },
+
+  // FAST FOOD
+  { id: 35, cat: 'fastfood', name: 'Zinger Burger', emoji: '🍔', desc: 'Crispy zinger burger – restaurant style', prices: { Single: 530 } },
+  { id: 36, cat: 'fastfood', name: 'Zinger Extreme Burger', emoji: '🍔', desc: 'Extra large zinger with double patty', prices: { Single: 700 } },
+  { id: 37, cat: 'fastfood', name: 'Chicken Burger', emoji: '🍔', desc: 'Classic chicken burger – juicy aur tasty', prices: { Single: 430 } },
+  { id: 38, cat: 'fastfood', name: 'Steak Burger', emoji: '🥩', desc: 'Beef steak burger – premium taste', prices: { Single: 510 } },
+  { id: 39, cat: 'fastfood', name: 'Supreme Burger', emoji: '👑', desc: 'The ultimate supreme burger experience', prices: { Single: 700 } },
+  { id: 40, cat: 'fastfood', name: 'Chicken Broast', emoji: '🍗', desc: 'Crispy broasted chicken – golden aur crunchy', prices: { Single: 530 } },
+  { id: 41, cat: 'fastfood', name: 'Chicken Club Sandwich', emoji: '🥪', desc: 'Triple layer club sandwich', prices: { Single: 480 } },
+  { id: 42, cat: 'fastfood', name: 'BBQ Club Sandwich', emoji: '🥪', desc: 'BBQ flavored club sandwich', prices: { Single: 500 } },
+  { id: 43, cat: 'fastfood', name: 'Vegetable Club Sandwich', emoji: '🥙', desc: 'Fresh veg club sandwich – light aur healthy', prices: { Single: 380 } },
+  { id: 44, cat: 'fastfood', name: 'Mexican Sandwich', emoji: '🌮', desc: 'Spicy Mexican-style chicken sandwich', prices: { Single: 380 } },
+  { id: 45, cat: 'fastfood', name: 'Mexican Vegetable Sandwich', emoji: '🌮', desc: 'Veg Mexican sandwich – fresh aur spicy', prices: { Single: 380 } },
+
+  // CHINESE
+  { id: 46, cat: 'chinese', name: 'Chicken Dry Chili with Rice', emoji: '🍜', desc: 'Crispy chicken dry chili – restaurant style', prices: { Single: 1100 } },
+  { id: 47, cat: 'chinese', name: 'Chicken Mirchi 360 Special with Rice', emoji: '🌶️', desc: 'Our signature Chinese-desi fusion dish', prices: { Single: 1100 } },
+  { id: 48, cat: 'chinese', name: 'Chicken Chili Onion with Rice', emoji: '🧅', desc: 'Classic chili chicken with onion gravy', prices: { Single: 1100 } },
+  { id: 49, cat: 'chinese', name: 'Singaporian Rice', emoji: '🍚', desc: 'Fragrant Singaporian fried rice', prices: { Single: 1100 } },
+  { id: 50, cat: 'chinese', name: 'Chicken Manchurian with Rice', emoji: '🍜', desc: 'Classic manchurian in tangy sauce', prices: { Single: 1100 } },
+  { id: 51, cat: 'chinese', name: 'Chicken Fried Rice', emoji: '🍳', desc: 'Classic egg-fried rice with chicken', prices: { Single: 500 } },
+  { id: 52, cat: 'chinese', name: 'Chicken Shaslik with Rice', emoji: '🍢', desc: 'Grilled chicken shaslik served with rice', prices: { Single: 1100 } },
+  { id: 53, cat: 'chinese', name: 'Chicken Spagetti', emoji: '🍝', desc: 'Chicken spaghetti – Italian-Chinese fusion', prices: { Single: 1100 } },
+  { id: 54, cat: 'chinese', name: 'Chicken Chowhein', emoji: '🍜', desc: 'Classic chicken chow mein noodles', prices: { Single: 1000 } },
+  { id: 55, cat: 'chinese', name: 'Vegetable Chowhein', emoji: '🥦', desc: 'Fresh vegetable chow mein', prices: { Single: 600 } },
+  { id: 56, cat: 'chinese', name: 'Vegetable Rice', emoji: '🍚', desc: 'Light and healthy veg fried rice', prices: { Single: 470 } },
+  { id: 57, cat: 'chinese', name: 'Plain Rice', emoji: '🍚', desc: 'Steamed plain white rice', prices: { Single: 350 } },
+  { id: 58, cat: 'chinese', name: 'Mac and Cheese Pasta', emoji: '🧀', desc: 'Creamy mac and cheese – kids favourite', prices: { Single: 1000 } },
+  { id: 59, cat: 'chinese', name: 'Alferado Pasta', emoji: '🍝', desc: 'Rich Alfredo cream pasta', prices: { Single: 1000 } },
+  { id: 60, cat: 'chinese', name: 'Chicken Lasagna', emoji: '🍝', desc: 'Layered chicken lasagna – baked to perfection', prices: { Single: 1000 } },
+  { id: 61, cat: 'chinese', name: 'Penne Arabia', emoji: '🍝', desc: 'Arabian spiced penne pasta', prices: { Single: 1000 } },
+  { id: 62, cat: 'chinese', name: 'Chinese Thali', emoji: '🍽️', desc: 'Complete Chinese meal thali', prices: { Single: 1100 } },
+  { id: 63, cat: 'chinese', name: 'Asian Thali', emoji: '🍽️', desc: 'Full Asian cuisine thali platter', prices: { Single: 1100 } },
+
+  // PIZZA
+  { id: 64, cat: 'pizza', name: 'Chicken Tikka Pizza', emoji: '🍕', desc: 'Desi favourite – tikka masala on pizza', prices: { Small: 530, Medium: 830, Large: 1300 } },
+  { id: 65, cat: 'pizza', name: 'Chicken Fajita Pizza', emoji: '🍕', desc: 'Smoky fajita chicken with Mexican spices', prices: { Small: 530, Medium: 830, Large: 1500 } },
+  { id: 66, cat: 'pizza', name: 'Bonfire Pizza', emoji: '🔥', desc: 'Spicy bonfire – for the brave ones!', prices: { Small: 350, Medium: 1000, Large: 1500 } },
+  { id: 67, cat: 'pizza', name: 'Afghani Pizza', emoji: '🍕', desc: 'Unique Afghani spiced chicken pizza', prices: { Small: 600, Medium: 900, Large: 1450 } },
+  { id: 68, cat: 'pizza', name: 'Special Pizza', emoji: '⭐', desc: 'Our special loaded pizza – best seller!', prices: { Small: 530, Medium: 1000, Large: 1500 } },
+  { id: 69, cat: 'pizza', name: 'Stuffed Crust Pizza', emoji: '🧀', desc: 'Cheesy stuffed crust – oozy & delicious', prices: { Small: 530, Medium: 1000, Large: 1600 } },
+  { id: 70, cat: 'pizza', name: 'Chicken Super Supreme', emoji: '👑', desc: 'Super loaded supreme chicken pizza', prices: { Small: 530, Medium: 850, Large: 1300 } },
+  { id: 71, cat: 'pizza', name: 'Stuffed Kebab Pizza', emoji: '🥙', desc: 'Pizza stuffed with juicy kebab filling', prices: { Small: 600, Medium: 1000, Large: 1600 } },
+  { id: 72, cat: 'pizza', name: 'Behari Spring Roll Pizza', emoji: '🌯', desc: 'Unique fusion of Behari boti in pizza', prices: { Small: 600 } },
+  { id: 73, cat: 'pizza', name: 'Vegetable Pizza', emoji: '🥦', desc: 'Fresh veggie loaded pizza', prices: { Small: 530, Medium: 850, Large: 1300 } },
+  { id: 74, cat: 'pizza', name: 'Malai Pizza', emoji: '🤍', desc: 'Creamy malai chicken pizza – mild & rich', prices: { Small: 600, Medium: 1100, Large: 1600 } },
+  { id: 75, cat: 'pizza', name: 'Pizza Fries', emoji: '🍟', desc: 'Crispy fries topped with pizza sauce & cheese', prices: { Single: 600 } },
+
+  // VEGETABLE
+  { id: 76, cat: 'vegetable', name: 'Paner Handi', emoji: '🧀', desc: 'Rich paneer in spiced handi gravy', prices: { Single: 1100 } },
+  { id: 77, cat: 'vegetable', name: 'Paneer Palak', emoji: '🥬', desc: 'Creamy spinach with fresh paneer', prices: { Single: 1050 } },
+  { id: 78, cat: 'vegetable', name: 'Paneer Mughlai', emoji: '👑', desc: 'Royal Mughlai style paneer dish', prices: { Single: 1100 } },
+  { id: 79, cat: 'vegetable', name: 'Paneer Achari', emoji: '🌶️', desc: 'Tangy achari spiced paneer', prices: { Single: 1100 } },
+  { id: 80, cat: 'vegetable', name: 'Paneer Stuff', emoji: '🧀', desc: 'Stuffed paneer – crispy outside, soft inside', prices: { Single: 750 } },
+  { id: 81, cat: 'vegetable', name: 'Paneer Nachos', emoji: '🌮', desc: 'Nachos with paneer topping', prices: { Single: 550 } },
+  { id: 82, cat: 'vegetable', name: 'Vegetable Cutlus', emoji: '🥦', desc: 'Crispy fried vegetable cutlets', prices: { Single: 600 } },
+  { id: 83, cat: 'vegetable', name: 'Malai Kofta', emoji: '🤍', desc: 'Soft kofta balls in rich malai gravy', prices: { Single: 800 } },
+  { id: 84, cat: 'vegetable', name: 'Vegetable Kofta Handi', emoji: '🥘', desc: 'Veg kofta in aromatic handi', prices: { Single: 1000 } },
+  { id: 85, cat: 'vegetable', name: 'Vegetable Achari Handi', emoji: '🌶️', desc: 'Tangy achari veg handi', prices: { Single: 900 } },
+  { id: 86, cat: 'vegetable', name: 'Vegetable White Handi', emoji: '🤍', desc: 'Creamy white veg handi', prices: { Single: 900 } },
+  { id: 87, cat: 'vegetable', name: 'Vegetable Cheese Cutlus', emoji: '🧀', desc: 'Cheesy vegetable cutlets – crispy & delicious', prices: { Single: 900 } },
+  { id: 88, cat: 'vegetable', name: 'Vegetable Peri Bites', emoji: '🌶️', desc: 'Spicy peri peri vegetable bites', prices: { Single: 750 } },
+  { id: 89, cat: 'vegetable', name: 'Mirchi 360 Yakhni Rice', emoji: '🍚', desc: 'Special yakhni rice – our signature veg rice', prices: { Single: 600 } },
+  { id: 90, cat: 'vegetable', name: 'Vegetable Platter', emoji: '🥗', desc: 'Mixed vegetable platter – variety pack', prices: { Single: 800 } },
+  { id: 91, cat: 'vegetable', name: 'Dynamite Chicken', emoji: '💥', desc: 'Explosive dynamite flavored chicken bites', prices: { Single: 700 } },
+
+  // ROLLS
+  { id: 92, cat: 'rolls', name: 'Chicken Roll', emoji: '🌯', desc: 'Classic chicken roll – soft paratha with filling', prices: { Single: 280 } },
+  { id: 93, cat: 'rolls', name: 'Chicken Broast Roll', emoji: '🌯', desc: 'Crispy broast in a roll – perfect snack', prices: { Single: 280 } },
+  { id: 94, cat: 'rolls', name: 'Chicken Afghani Reshmi Kabab Roll', emoji: '🌯', desc: 'Afghani reshmi kabab wrapped in paratha', prices: { Single: 210 } },
+  { id: 95, cat: 'rolls', name: 'Chicken Behari Boti Roll', emoji: '🌯', desc: 'Tender behari boti roll – full of flavour', prices: { Single: 290 } },
+  { id: 96, cat: 'rolls', name: 'Chicken Malai Boti Roll', emoji: '🤍', desc: 'Creamy malai boti rolled up perfectly', prices: { Single: 290 } },
+  { id: 97, cat: 'rolls', name: 'Vegetable Roll', emoji: '🥙', desc: 'Fresh vegetable roll – healthy choice', prices: { Single: 210 } },
+
+  // FISH
+  { id: 98, cat: 'fish', name: 'Fish N Chips', emoji: '🐟', desc: 'Classic fish and chips – crispy & delicious', prices: { Single: 1150 } },
+  { id: 99, cat: 'fish', name: 'Finger Fish', emoji: '🐠', desc: 'Crispy finger fish – perfect starter', prices: { Single: 1150 } },
+  { id: 100, cat: 'fish', name: 'BBQ Fish Sanghar', emoji: '🐡', desc: 'Special BBQ whole fish – Sanghar ka mashoor!', prices: { Single: 3000 } },
+
+  // SALADS
+  { id: 101, cat: 'salads', name: 'Russian Salad', emoji: '🥗', desc: 'Classic creamy Russian salad', prices: { Single: 599 } },
+  { id: 102, cat: 'salads', name: 'Chicken Pineapple Salad', emoji: '🍍', desc: 'Tropical chicken pineapple salad', prices: { Single: 599 } },
+  { id: 103, cat: 'salads', name: 'Green Salad', emoji: '🥬', desc: 'Fresh green salad – healthy & light', prices: { Single: 150 } },
+  { id: 104, cat: 'salads', name: 'Raita', emoji: '🥛', desc: 'Cooling dahi raita – perfect with biryani', prices: { Single: 150 } },
+  { id: 105, cat: 'salads', name: 'Fruit Chaat', emoji: '🍇', desc: 'Seasonal fruit chaat with chaat masala', prices: { Single: 399 } },
+
+  // PARATHA & NAAN
+  { id: 106, cat: 'paratha', name: 'Chicken Paratha', emoji: '🫓', desc: 'Stuffed chicken paratha – crispy & filling', prices: { Single: 410 } },
+  { id: 107, cat: 'paratha', name: 'Chicken Cheese Paratha', emoji: '🧀', desc: 'Chicken and cheese stuffed paratha', prices: { Single: 450 } },
+  { id: 108, cat: 'paratha', name: 'Aalu Paratha', emoji: '🥔', desc: 'Classic potato stuffed paratha', prices: { Single: 270 } },
+  { id: 109, cat: 'paratha', name: 'Plain Paratha', emoji: '🫓', desc: 'Simple layered plain paratha', prices: { Single: 70 } },
+  { id: 110, cat: 'paratha', name: 'Roghni Naan', emoji: '🫓', desc: 'Soft roghni naan – freshly baked', prices: { Single: 65 } },
+  { id: 111, cat: 'paratha', name: 'Garlic Naan', emoji: '🧄', desc: 'Garlic butter naan – fragrant & delicious', prices: { Single: 65 } },
+  { id: 112, cat: 'paratha', name: 'Kandhari Naan', emoji: '🫓', desc: 'Kandhari style thick naan', prices: { Single: 65 } },
+  { id: 113, cat: 'paratha', name: 'Chapati', emoji: '🫓', desc: 'Simple fresh chapati', prices: { Single: 30 } },
+  { id: 114, cat: 'paratha', name: 'Naan', emoji: '🫓', desc: 'Plain freshly baked naan', prices: { Single: 40 } },
+
+  // APPETIZERS
+  { id: 115, cat: 'fastfood', name: 'Spicy Wings', emoji: '🔥', desc: 'Hot & spicy chicken wings', prices: { Single: 450 } },
+  { id: 116, cat: 'fastfood', name: 'Honey Wings', emoji: '🍯', desc: 'Sweet honey glazed wings', prices: { Single: 480 } },
+  { id: 117, cat: 'fastfood', name: 'French Fries', emoji: '🍟', desc: 'Golden crispy French fries', prices: { Single: 300 } },
+  { id: 118, cat: 'fastfood', name: 'Chicken Cheese Balls', emoji: '🧀', desc: 'Crispy cheesy chicken balls', prices: { Single: 800 } },
+  { id: 119, cat: 'fastfood', name: 'Hot N Sour Soup', emoji: '🍲', desc: 'Classic hot and sour soup', prices: { Single: 280 } },
+  { id: 120, cat: 'fastfood', name: 'Chicken Corn Soup', emoji: '🌽', desc: 'Creamy chicken corn soup', prices: { Single: 280 } },
+  { id: 121, cat: 'fastfood', name: 'Mirchi 360 Special Soup', emoji: '🌶️', desc: 'Our signature special soup', prices: { Single: 280 } },
+  { id: 122, cat: 'fastfood', name: 'Family Bowl Soup', emoji: '🫕', desc: 'Large family-sized soup bowl', prices: { Single: 1200 } },
+
+  // JUICES
+  { id: 123, cat: 'juices', name: 'Kit Kat Shake', emoji: '🥤', desc: 'Creamy Kit Kat milkshake', prices: { Single: 480 } },
+  { id: 124, cat: 'juices', name: 'Strawberry Shake', emoji: '🍓', desc: 'Fresh strawberry milkshake', prices: { Single: 420 } },
+  { id: 125, cat: 'juices', name: 'Mango Juice', emoji: '🥭', desc: 'Fresh mango juice – pure aur natural', prices: { Single: 380 } },
+  { id: 126, cat: 'juices', name: 'Cadbury Shake', emoji: '🍫', desc: 'Rich Cadbury chocolate shake', prices: { Single: 450 } },
+  { id: 127, cat: 'juices', name: 'Orange Juice', emoji: '🍊', desc: 'Freshly squeezed orange juice', prices: { Single: 320 } },
+  { id: 128, cat: 'juices', name: 'Annar Juice', emoji: '💎', desc: 'Pomegranate juice – rich in antioxidants', prices: { Single: 410 } },
+  { id: 129, cat: 'juices', name: 'Oreo Shake', emoji: '🍪', desc: 'Thick Oreo cookie milkshake', prices: { Single: 450 } },
+  { id: 130, cat: 'juices', name: 'Apple Juice', emoji: '🍎', desc: 'Fresh apple juice – crisp aur refreshing', prices: { Single: 320 } },
+  { id: 131, cat: 'juices', name: 'Falsa Juice', emoji: '🟣', desc: 'Tangy falsa berry juice', prices: { Single: 350 } },
+  { id: 132, cat: 'juices', name: 'Pineapple Shake', emoji: '🍍', desc: 'Tropical pineapple milkshake', prices: { Single: 400 } },
+  { id: 133, cat: 'juices', name: 'Grape Fruit', emoji: '🍇', desc: 'Fresh grapefruit juice', prices: { Single: 350 } },
+  { id: 134, cat: 'juices', name: 'Pinna Colada', emoji: '🥥', desc: 'Non-alcoholic pinna colada', prices: { Single: 370 } },
+  { id: 135, cat: 'juices', name: 'Mint Lemon', emoji: '🍋', desc: 'Refreshing mint lemon – perfect for summer', prices: { Single: 290 } },
+  { id: 136, cat: 'juices', name: 'Blueberry Shake', emoji: '🫐', desc: 'Fresh blueberry milkshake', prices: { Single: 480 } },
+  { id: 137, cat: 'juices', name: 'Mirchi 360 Special Shake', emoji: '🌶️', desc: 'Our secret recipe signature shake', prices: { Single: 400 } },
+  { id: 138, cat: 'juices', name: 'Lovestory Shake', emoji: '💕', desc: 'Our romantic lovestory special shake', prices: { Single: 450 } },
+  { id: 139, cat: 'juices', name: 'Cake Alaska Shake', emoji: '🎂', desc: 'Cake-flavored Alaska milkshake', prices: { Single: 500 } },
+  { id: 140, cat: 'juices', name: 'Brownie Shake', emoji: '🍫', desc: 'Rich chocolate brownie shake', prices: { Single: 400 } },
+  { id: 141, cat: 'juices', name: 'Fresh Cocktail', emoji: '🥤', desc: 'Fresh fruit cocktail mocktail', prices: { Single: 450 } },
+
+  // DESSERTS
+  { id: 142, cat: 'desserts', name: 'Ice Cream', emoji: '🍦', desc: 'Creamy soft serve ice cream', prices: { Single: 300 } },
+  { id: 143, cat: 'desserts', name: 'Kheer Mix', emoji: '🍮', desc: 'Traditional Pakistani kheer', prices: { Single: 480 } },
+  { id: 144, cat: 'desserts', name: 'Kunafa', emoji: '🍯', desc: 'Arabian kunafa – warm cheese dessert', prices: { Single: 800 } },
+  { id: 145, cat: 'desserts', name: 'Faluda', emoji: '🌹', desc: 'Classic rose faluda – desi favourite', prices: { Single: 520 } },
+  { id: 146, cat: 'desserts', name: 'Las e Shireen', emoji: '🧁', desc: 'Traditional las e shireen dessert', prices: { Single: 800 } },
+  { id: 147, cat: 'desserts', name: 'Fruit Trifle', emoji: '🍰', desc: 'Layered fruit trifle – colourful & delicious', prices: { Single: 800 } },
+
+  // BEVERAGES
+  { id: 148, cat: 'beverages', name: 'Coffee', emoji: '☕', desc: 'Hot brewed coffee', prices: { Single: 299 } },
+  { id: 149, cat: 'beverages', name: 'Tea', emoji: '🍵', desc: 'Desi chai – garam garam', prices: { Single: 120 } },
+  { id: 150, cat: 'beverages', name: 'Large Water', emoji: '💧', desc: 'Large mineral water bottle', prices: { Single: 120 } },
+  { id: 151, cat: 'beverages', name: 'Cold Coffee', emoji: '🧋', desc: 'Chilled cold coffee', prices: { Single: 299 } },
+  { id: 152, cat: 'beverages', name: 'Fresh Lime', emoji: '🍋', desc: 'Fresh lime water – sar dard door kare', prices: { Single: 120 } },
+  { id: 153, cat: 'beverages', name: 'Small Water', emoji: '💧', desc: 'Small mineral water bottle', prices: { Single: 50 } },
+  { id: 154, cat: 'beverages', name: 'Disposable Can', emoji: '🥤', desc: 'Soft drink can – aapki pasand', prices: { Single: 120 } },
+  { id: 155, cat: 'beverages', name: 'Green Tea', emoji: '🍵', desc: 'Healthy green tea', prices: { Single: 80 } },
+  { id: 156, cat: 'beverages', name: 'Lemon Kehwa', emoji: '🫖', desc: 'Refreshing lemon kehwa with spices', prices: { Single: 80 } },
+];
+
+// ===== CART STATE =====
 let cart = [];
-let currentMenuFilter = 'all';
-let currentOrderFilter = 'all';
-let adminLoggedIn = false;
-let settings = JSON.parse(localStorage.getItem('mirchi_settings')) || { waNumber: '923324187360', deliveryCharge: 50 };
-let adminCreds = JSON.parse(localStorage.getItem('mirchi_creds')) || { user: 'admin', pass: 'mirchi360' };
-let selectedTableType = '';
-let conversationHistory = [];
+let currentItem = null;
+let currentQty = 1;
+let currentSizeKey = null;
 
-// ===== DEFAULT MENU =====
-function getDefaultMenu() {
-  return [
-    { name: 'Chicken Karahi', category: 'Karahi', price: 650, emoji: '🌶️', desc: 'Spicy and aromatic chicken karahi cooked in traditional style', image: '' },
-    { name: 'Mutton Karahi', category: 'Karahi', price: 950, emoji: '🍖', desc: 'Rich mutton karahi with handpicked spices', image: '' },
-    { name: 'Chicken BBQ Platter', category: 'BBQ', price: 750, emoji: '🔥', desc: 'Grilled chicken with charcoal smoke flavor', image: '' },
-    { name: 'Seekh Kabab', category: 'BBQ', price: 350, emoji: '🍢', desc: 'Juicy minced meat skewers with green chutney', image: '' },
-    { name: 'Chicken Tikka', category: 'BBQ', price: 550, emoji: '🔴', desc: 'Marinated chicken tikka cooked in tandoor', image: '' },
-    { name: 'Desi Biryani', category: 'Desi Items', price: 350, emoji: '🍗', desc: 'Authentic dum biryani with aromatic basmati rice', image: '' },
-    { name: 'Mutton Handi', category: 'Desi Items', price: 900, emoji: '🫕', desc: 'Slow-cooked mutton in a traditional handi', image: '' },
-    { name: 'Chicken Handi', category: 'Desi Items', price: 600, emoji: '🫕', desc: 'Creamy chicken handi with desi spices', image: '' },
-    { name: 'Gourmet Pizza', category: 'Pizza', price: 700, emoji: '🍕', desc: 'Loaded with premium toppings and mozzarella', image: '' },
-    { name: 'Chicken Burger', category: 'Fast Food', price: 280, emoji: '🍔', desc: 'Crispy chicken patty with fresh vegetables', image: '' },
-    { name: 'Zinger Burger', category: 'Fast Food', price: 320, emoji: '🍔', desc: 'Spicy zinger with signature sauce', image: '' },
-    { name: 'Chicken Roll', category: 'Rolls', price: 180, emoji: '🌯', desc: 'Grilled chicken wrapped in fresh paratha', image: '' },
-    { name: 'Chinese Noodles', category: 'Chinese', price: 300, emoji: '🍜', desc: 'Wok-tossed noodles with vegetables and chicken', image: '' },
-    { name: 'Fried Rice', category: 'Chinese', price: 280, emoji: '🍚', desc: 'Egg fried rice with Chinese vegetables', image: '' },
-    { name: 'Lemon Mint', category: 'Juices', price: 120, emoji: '🥤', desc: 'Refreshing lemon mint with chaat masala', image: '' },
-    { name: 'Mango Shake', category: 'Juices', price: 150, emoji: '🥭', desc: 'Fresh mango blended with milk', image: '' },
-    { name: 'Gulab Jamun', category: 'Desserts', price: 100, emoji: '🍡', desc: 'Soft gulab jamun soaked in rose syrup', image: '' },
-    { name: 'Ice Cream', category: 'Desserts', price: 80, emoji: '🍦', desc: 'Premium creamy ice cream scoops', image: '' },
-    { name: 'Rohu Fish Fry', category: 'Fish', price: 700, emoji: '🐟', desc: 'Crispy spiced rohu fish fry', image: '' },
-    { name: 'Vegetable Curry', category: 'Vegetable', price: 250, emoji: '🥘', desc: 'Mixed vegetable curry in desi style', image: '' },
-    { name: 'Naan', category: 'Paratha & Naan', price: 25, emoji: '🫓', desc: 'Freshly baked naan from the tandoor', image: '' },
-    { name: 'Aloo Paratha', category: 'Paratha & Naan', price: 80, emoji: '🫓', desc: 'Stuffed potato paratha with butter', image: '' },
-    { name: 'Garden Salad', category: 'Salads', price: 150, emoji: '🥗', desc: 'Fresh garden salad with lemon dressing', image: '' },
-    { name: 'Pepsi', category: 'Beverages', price: 60, emoji: '🥤', desc: 'Chilled soft drink', image: '' },
-  ];
-}
-
-// ===== LOADER =====
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    document.getElementById('loader').classList.add('hidden');
-    initAll();
-  }, 2200);
-});
-
-function initAll() {
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
   initParticles();
-  initCursor();
-  initNavbar();
-  initCounters();
+  initFloatingSpices();
   initMenu();
-  initOrderSection();
-  initBookingTableTypes();
-  initReveal();
-  initBookingDateMin();
-  renderAdminMenuTable();
-  renderAdminBookingsTable();
-  updateAdminStats();
-}
+  initTableStatus();
+  initNavbarScroll();
+  renderCartSidebar();
+});
 
 // ===== PARTICLE CANVAS =====
 function initParticles() {
-  const canvas = document.getElementById('particleCanvas');
+  const canvas = document.getElementById('particle-canvas');
   const ctx = canvas.getContext('2d');
   let particles = [];
-  let W = canvas.width = window.innerWidth;
-  let H = canvas.height = window.innerHeight;
+  let W, H;
 
-  window.addEventListener('resize', () => {
+  function resize() {
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
-  });
+  }
+  resize();
+  window.addEventListener('resize', resize);
 
-  class Particle {
-    constructor() { this.reset(); }
-    reset() {
-      this.x = Math.random() * W;
-      this.y = Math.random() * H;
-      this.size = Math.random() * 1.5 + 0.3;
-      this.speedX = (Math.random() - 0.5) * 0.3;
-      this.speedY = (Math.random() - 0.5) * 0.3;
-      this.opacity = Math.random() * 0.4 + 0.1;
-      this.color = Math.random() > 0.5 ? '#C9A84C' : '#E85D04';
-    }
-    update() {
-      this.x += this.speedX; this.y += this.speedY;
-      if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
-    }
-    draw() {
-      ctx.save();
-      ctx.globalAlpha = this.opacity;
-      ctx.fillStyle = this.color;
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
+  for (let i = 0; i < 60; i++) {
+    particles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 2 + 0.5,
+      dx: (Math.random() - 0.5) * 0.4,
+      dy: (Math.random() - 0.5) * 0.4,
+      alpha: Math.random() * 0.5 + 0.1,
+      color: Math.random() > 0.7 ? '#e8141c' : '#ff6b2b'
+    });
   }
 
-  for (let i = 0; i < 120; i++) particles.push(new Particle());
-
-  function animate() {
+  function draw() {
     ctx.clearRect(0, 0, W, H);
-    particles.forEach(p => { p.update(); p.draw(); });
-    // Draw connections
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < 100) {
-          ctx.save();
-          ctx.globalAlpha = (1 - dist/100) * 0.08;
-          ctx.strokeStyle = '#C9A84C';
-          ctx.lineWidth = 0.5;
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.stroke();
-          ctx.restore();
-        }
-      }
-    }
-    requestAnimationFrame(animate);
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.alpha;
+      ctx.fill();
+      p.x += p.dx; p.y += p.dy;
+      if (p.x < 0 || p.x > W) p.dx *= -1;
+      if (p.y < 0 || p.y > H) p.dy *= -1;
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
   }
-  animate();
+  draw();
 }
 
-// ===== CURSOR =====
-function initCursor() {
-  const dot = document.getElementById('cursorDot');
-  const ring = document.getElementById('cursorRing');
-  let ringX = 0, ringY = 0;
-
-  document.addEventListener('mousemove', e => {
-    dot.style.left = e.clientX + 'px';
-    dot.style.top = e.clientY + 'px';
-    ringX += (e.clientX - ringX) * 0.12;
-    ringY += (e.clientY - ringY) * 0.12;
-    ring.style.left = ringX + 'px';
-    ring.style.top = ringY + 'px';
-  });
-
-  setInterval(() => {
-    const e = { clientX: parseFloat(ring.style.left||0), clientY: parseFloat(ring.style.top||0) };
-    // smooth follow
-  }, 16);
-
-  document.addEventListener('mousedown', () => { dot.classList.add('clicked'); ring.classList.add('clicked'); });
-  document.addEventListener('mouseup', () => { dot.classList.remove('clicked'); ring.classList.remove('clicked'); });
-
-  // Hide on mobile
-  if ('ontouchstart' in window) {
-    dot.style.display = 'none'; ring.style.display = 'none';
+// ===== FLOATING SPICES =====
+function initFloatingSpices() {
+  const container = document.getElementById('floatingSpices');
+  const spices = ['🌶️', '🍗', '🥩', '🍕', '🌿', '⭐', '🔥', '🍜', '🧄', '🫙'];
+  for (let i = 0; i < 15; i++) {
+    const el = document.createElement('div');
+    el.className = 'spice';
+    el.textContent = spices[Math.floor(Math.random() * spices.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.animationDuration = (Math.random() * 15 + 10) + 's';
+    el.style.animationDelay = (Math.random() * 15) + 's';
+    el.style.fontSize = (Math.random() * 1.5 + 0.8) + 'rem';
+    container.appendChild(el);
   }
 }
 
-// ===== NAVBAR =====
-function initNavbar() {
+// ===== NAVBAR SCROLL =====
+function initNavbarScroll() {
   const navbar = document.getElementById('navbar');
-  const navLinks = document.getElementById('navLinks');
-  const hamburger = document.getElementById('hamburger');
-
   window.addEventListener('scroll', () => {
     navbar.classList.toggle('scrolled', window.scrollY > 50);
-
-    // Active link
-    const sections = document.querySelectorAll('section[id]');
-    sections.forEach(sec => {
-      const top = sec.offsetTop - 100;
-      const bot = top + sec.offsetHeight;
-      if (window.scrollY >= top && window.scrollY < bot) {
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        const link = document.querySelector(`.nav-link[href="#${sec.id}"]`);
-        if (link) link.classList.add('active');
-      }
-    });
-  });
-
-  hamburger.addEventListener('click', () => {
-    navLinks.classList.toggle('open');
-  });
-
-  document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => navLinks.classList.remove('open'));
   });
 }
 
-// ===== COUNTERS =====
-function initCounters() {
-  const counters = document.querySelectorAll('.hero-stat-num');
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const el = entry.target;
-        const target = +el.dataset.target;
-        let current = 0;
-        const increment = target / 60;
-        const timer = setInterval(() => {
-          current += increment;
-          if (current >= target) { el.textContent = target; clearInterval(timer); }
-          else el.textContent = Math.floor(current);
-        }, 25);
-        observer.unobserve(el);
-      }
-    });
-  });
-  counters.forEach(c => observer.observe(c));
+// ===== MOBILE NAV =====
+function toggleMobileNav() {
+  document.getElementById('navLinks').classList.toggle('open');
 }
 
-// ===== MENU =====
+// Close mobile nav on link click
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('navLinks').classList.remove('open');
+  });
+});
+
+// ===== MENU RENDER =====
 function initMenu() {
-  renderMenuGrid();
-  document.querySelectorAll('#menuCategories .cat-btn').forEach(btn => {
+  renderMenu('all');
+  document.querySelectorAll('.cat-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('#menuCategories .cat-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      currentMenuFilter = btn.dataset.cat;
-      renderMenuGrid();
+      renderMenu(btn.dataset.cat);
     });
   });
 }
 
-function renderMenuGrid() {
+function renderMenu(cat) {
   const grid = document.getElementById('menuGrid');
-  const filtered = currentMenuFilter === 'all' ? menuItems : menuItems.filter(i => i.category === currentMenuFilter);
-  if (filtered.length === 0) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:4rem;color:var(--text-muted)">No items in this category yet.</div>';
+  const items = cat === 'all' ? MENU_DATA : MENU_DATA.filter(i => i.cat === cat);
+  grid.innerHTML = '';
+  if (!items.length) {
+    grid.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:3rem;grid-column:1/-1">Koi item nahi mili</p>';
     return;
   }
-  grid.innerHTML = filtered.map((item, idx) => {
-    const realIdx = menuItems.indexOf(item);
-    return `
-      <div class="menu-card reveal" onclick="addToCartFromMenu(${realIdx})">
-        <div class="menu-card-img">
-          ${item.image ? `<img src="${item.image}" alt="${item.name}"/>` : `<div class="menu-card-emoji">${item.emoji || '🍽️'}</div>`}
-          <div class="menu-card-badge">${item.category}</div>
-        </div>
-        <div class="menu-card-body">
-          <div class="menu-card-name">${item.name}</div>
-          <div class="menu-card-desc">${item.desc || 'Freshly prepared with finest ingredients'}</div>
-          <div class="menu-card-footer">
-            <div class="menu-card-price">Rs. ${item.price}</div>
-            <button class="menu-card-add" onclick="event.stopPropagation();addToCartFromMenu(${realIdx})">+</button>
+  items.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'menu-card';
+    card.style.animationDelay = (idx * 0.04) + 's';
+    const priceDisplay = getPriceDisplay(item.prices);
+    card.innerHTML = `
+      <div class="card-img-placeholder" style="background:${getGradient(item.cat)}">${item.emoji}</div>
+      <div class="card-body">
+        <div class="card-cat">${getCatLabel(item.cat)}</div>
+        <div class="card-name">${item.name}</div>
+        <div class="card-desc">${item.desc}</div>
+        <div class="card-footer">
+          <div>
+            <div class="card-price">Rs. ${getMinPrice(item.prices)}</div>
+            ${Object.keys(item.prices).length > 1 ? `<div class="card-price-range">${priceDisplay}</div>` : ''}
           </div>
+          <button class="card-add-btn" onclick="openModal(${item.id}, event)" title="Add to Cart">+</button>
         </div>
-      </div>`;
-  }).join('');
-  initRevealElements();
-}
-
-// ===== ORDER SECTION =====
-function initOrderSection() {
-  renderOrderCategories();
-  renderOrderItems();
-  document.getElementById('orderSearch').addEventListener('input', e => {
-    renderOrderItems(e.target.value.toLowerCase());
+      </div>
+    `;
+    card.addEventListener('click', () => openModal(item.id));
+    grid.appendChild(card);
   });
 }
 
-function renderOrderCategories() {
-  const cats = ['all', ...new Set(menuItems.map(i => i.category))];
-  const container = document.getElementById('orderCats');
-  container.innerHTML = cats.map(cat => `
-    <button class="cat-btn ${cat === currentOrderFilter ? 'active' : ''}" onclick="filterOrderItems('${cat}')">${cat === 'all' ? 'All' : cat}</button>
-  `).join('');
+function getPriceDisplay(prices) {
+  const entries = Object.entries(prices);
+  if (entries.length === 1) return `Rs. ${entries[0][1]}`;
+  return entries.map(([k, v]) => `${k}: ${v}`).join(' | ');
 }
 
-function filterOrderItems(cat) {
-  currentOrderFilter = cat;
-  document.querySelectorAll('#orderCats .cat-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  renderOrderItems();
+function getMinPrice(prices) {
+  return Math.min(...Object.values(prices));
 }
 
-function renderOrderItems(search = '') {
-  const grid = document.getElementById('orderItemsGrid');
-  let filtered = currentOrderFilter === 'all' ? menuItems : menuItems.filter(i => i.category === currentOrderFilter);
-  if (search) filtered = filtered.filter(i => i.name.toLowerCase().includes(search));
-  grid.innerHTML = filtered.map((item, _) => {
-    const realIdx = menuItems.indexOf(item);
-    return `
-      <div class="order-item-card">
-        ${item.image ? `<img class="order-item-img" src="${item.image}" alt="${item.name}"/>` : `<div class="order-item-emoji">${item.emoji || '🍽️'}</div>`}
-        <div class="order-item-info">
-          <div class="order-item-name" title="${item.name}">${item.name}</div>
-          <div class="order-item-price">Rs. ${item.price}</div>
-        </div>
-        <button class="order-item-add" onclick="addToCartFromMenu(${realIdx})">+</button>
-      </div>`;
-  }).join('');
+function getGradient(cat) {
+  const g = {
+    desi: 'linear-gradient(135deg,#2d1b0e,#1a0a0a)',
+    karahi: 'linear-gradient(135deg,#2a0808,#1a0a0a)',
+    bbq: 'linear-gradient(135deg,#1a1008,#0a0a0a)',
+    fastfood: 'linear-gradient(135deg,#1a1208,#0d0d0d)',
+    chinese: 'linear-gradient(135deg,#081a14,#0a0a0a)',
+    pizza: 'linear-gradient(135deg,#1a0e08,#0a0a0a)',
+    vegetable: 'linear-gradient(135deg,#081a08,#0a0a0a)',
+    rolls: 'linear-gradient(135deg,#12081a,#0a0a0a)',
+    fish: 'linear-gradient(135deg,#081218,#0a0a0a)',
+    salads: 'linear-gradient(135deg,#0a1a0a,#0a0a0a)',
+    paratha: 'linear-gradient(135deg,#1a1408,#0a0a0a)',
+    juices: 'linear-gradient(135deg,#1a0808,#180808)',
+    desserts: 'linear-gradient(135deg,#1a0818,#0a0a0a)',
+    beverages: 'linear-gradient(135deg,#08121a,#0a0a0a)',
+  };
+  return g[cat] || 'linear-gradient(135deg,#181818,#0a0a0a)';
+}
+
+function getCatLabel(cat) {
+  const labels = {
+    desi: 'Desi Items', karahi: 'Karahi', bbq: 'BBQ',
+    fastfood: 'Fast Food', chinese: 'Chinese', pizza: 'Pizza',
+    vegetable: 'Vegetable', rolls: 'Rolls', fish: 'Fish',
+    salads: 'Salads', paratha: 'Paratha & Naan', juices: 'Fresh Juices',
+    desserts: 'Desserts & Ice Cream', beverages: 'Beverages'
+  };
+  return labels[cat] || cat;
+}
+
+// ===== MODAL =====
+function openModal(id, e) {
+  if (e) e.stopPropagation();
+  const item = MENU_DATA.find(i => i.id === id);
+  if (!item) return;
+  currentItem = item;
+  currentQty = 1;
+  document.getElementById('modalQty').textContent = 1;
+  document.getElementById('modalName').textContent = item.name;
+  document.getElementById('modalDesc').textContent = item.desc;
+
+  const sizes = Object.keys(item.prices);
+  currentSizeKey = sizes[0];
+  const sizeSel = document.getElementById('modalSizes');
+  if (sizes.length > 1) {
+    sizeSel.innerHTML = sizes.map((s, i) =>
+      `<button class="size-btn ${i === 0 ? 'active' : ''}" onclick="selectSize('${s}', this)">${s} – Rs. ${item.prices[s]}</button>`
+    ).join('');
+    sizeSel.style.display = 'flex';
+  } else {
+    sizeSel.style.display = 'none';
+  }
+
+  document.getElementById('modalPrice').textContent = `Rs. ${item.prices[currentSizeKey]}`;
+  document.getElementById('modalImgPlaceholder').textContent = item.emoji;
+  document.getElementById('modalImg').style.display = 'none';
+  document.getElementById('modalImgPlaceholder').style.display = 'flex';
+
+  document.getElementById('itemModal').classList.add('open');
+  document.getElementById('modalOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function selectSize(size, btn) {
+  currentSizeKey = size;
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('modalPrice').textContent = `Rs. ${currentItem.prices[size]}`;
+}
+
+function changeQty(delta) {
+  currentQty = Math.max(1, currentQty + delta);
+  document.getElementById('modalQty').textContent = currentQty;
+}
+
+function addToCartFromModal() {
+  if (!currentItem) return;
+  addToCart(currentItem, currentSizeKey, currentQty);
+  closeModal();
+  showToast(`✅ ${currentItem.name} cart mein add ho gaya!`);
+}
+
+function closeModal() {
+  document.getElementById('itemModal').classList.remove('open');
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.body.style.overflow = '';
 }
 
 // ===== CART =====
-function addToCartFromMenu(idx) {
-  const item = menuItems[idx];
-  const existing = cart.find(c => c.name === item.name);
-  if (existing) existing.qty++;
-  else cart.push({ name: item.name, price: item.price, qty: 1 });
-  renderCart();
-  showToast(`${item.emoji || '🍽️'} ${item.name} added to order`);
+function addToCart(item, sizeKey, qty = 1) {
+  const price = item.prices[sizeKey];
+  const existing = cart.find(c => c.id === item.id && c.sizeKey === sizeKey);
+  if (existing) {
+    existing.qty += qty;
+  } else {
+    cart.push({ id: item.id, name: item.name, emoji: item.emoji, sizeKey, price, qty });
+  }
+  updateCartUI();
 }
 
-function renderCart() {
-  const cartItems = document.getElementById('cartItems');
-  const cartTotals = document.getElementById('cartTotals');
-  const cartCount = document.getElementById('cartCount');
-  const placeBtn = document.getElementById('placeOrderBtn');
+function updateCartUI() {
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+  document.getElementById('cartCount').textContent = count;
+  document.getElementById('subTotal').textContent = `Rs. ${total}`;
+  document.getElementById('grandTotal').textContent = `Rs. ${total + 50}`;
+  document.getElementById('sidebarTotal').textContent = `Rs. ${total}`;
+  renderCartSidebar();
+  renderCartSection();
+}
 
-  cartCount.textContent = cart.reduce((a, c) => a + c.qty, 0);
-
-  if (cart.length === 0) {
-    cartItems.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">🛒</div><div>Add items from the menu</div></div>';
-    cartTotals.style.display = 'none';
-    if (placeBtn) placeBtn.disabled = true;
+function renderCartSidebar() {
+  const el = document.getElementById('cartSidebarItems');
+  if (!cart.length) {
+    el.innerHTML = '<p class="empty-cart">Cart khali hai</p>';
     return;
   }
-
-  cartItems.innerHTML = cart.map((item, idx) => `
-    <div class="cart-item">
-      <div class="cart-item-name">${item.name}</div>
+  el.innerHTML = cart.map(item => `
+    <div class="cart-item-row">
+      <span class="cart-item-emoji">${item.emoji}</span>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-size">${item.sizeKey} • Rs. ${item.price}</div>
+      </div>
       <div class="cart-item-qty">
-        <button onclick="changeCartQty(${idx}, -1)">−</button>
+        <button onclick="changeCartQty(${item.id},'${item.sizeKey}',-1)">−</button>
         <span>${item.qty}</span>
-        <button onclick="changeCartQty(${idx}, 1)">+</button>
+        <button onclick="changeCartQty(${item.id},'${item.sizeKey}',1)">+</button>
       </div>
       <div class="cart-item-price">Rs. ${item.price * item.qty}</div>
     </div>
   `).join('');
-
-  const subtotal = cart.reduce((a, c) => a + c.price * c.qty, 0);
-  const delivery = +settings.deliveryCharge || 50;
-  const total = subtotal + delivery;
-
-  document.getElementById('cartSubtotal').textContent = `Rs. ${subtotal}`;
-  document.getElementById('cartTotal').textContent = `Rs. ${total}`;
-  cartTotals.style.display = 'block';
-  if (placeBtn) placeBtn.disabled = false;
 }
 
-function changeCartQty(idx, delta) {
+function renderCartSection() {
+  const el = document.getElementById('cartItems');
+  if (!cart.length) {
+    el.innerHTML = '<p class="empty-cart">Cart khali hai — menu se items add karein</p>';
+    return;
+  }
+  el.innerHTML = cart.map(item => `
+    <div class="cart-item-row">
+      <span class="cart-item-emoji">${item.emoji}</span>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-size">${item.sizeKey} • Rs. ${item.price}</div>
+      </div>
+      <div class="cart-item-qty">
+        <button onclick="changeCartQty(${item.id},'${item.sizeKey}',-1)">−</button>
+        <span>${item.qty}</span>
+        <button onclick="changeCartQty(${item.id},'${item.sizeKey}',1)">+</button>
+      </div>
+      <div class="cart-item-price">Rs. ${item.price * item.qty}</div>
+    </div>
+  `).join('');
+}
+
+function changeCartQty(id, sizeKey, delta) {
+  const idx = cart.findIndex(c => c.id === id && c.sizeKey === sizeKey);
+  if (idx === -1) return;
   cart[idx].qty += delta;
   if (cart[idx].qty <= 0) cart.splice(idx, 1);
-  renderCart();
+  updateCartUI();
 }
 
+function toggleCart() {
+  document.getElementById('cartSidebar').classList.toggle('open');
+  document.getElementById('cartOverlay').classList.toggle('active');
+}
+
+// ===== ORDER VIA WHATSAPP =====
 function placeOrder() {
-  const name = document.getElementById('delName').value.trim();
-  const phone = document.getElementById('delPhone').value.trim();
-  const address = document.getElementById('delAddress').value.trim();
-  const notes = document.getElementById('delNotes').value.trim();
-  const payment = document.querySelector('input[name="payment"]:checked')?.value || 'Cash on Delivery';
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const address = document.getElementById('custAddress').value.trim();
+  const note = document.getElementById('custNote').value.trim();
+  const payment = document.querySelector('input[name="payment"]:checked')?.value || 'COD';
 
-  if (!name || !phone || !address) { showToast('⚠️ Please fill in all required fields'); return; }
-  if (cart.length === 0) { showToast('⚠️ Your cart is empty'); return; }
-
-  const subtotal = cart.reduce((a, c) => a + c.price * c.qty, 0);
-  const delivery = +settings.deliveryCharge || 50;
-  const total = subtotal + delivery;
-
-  let orderText = `🌶️ *MIRCHI 360° - NEW ORDER*\n\n`;
-  orderText += `*Customer:* ${name}\n*Phone:* ${phone}\n*Address:* ${address}\n\n`;
-  orderText += `*Order Details:*\n`;
-  cart.forEach(item => { orderText += `• ${item.name} x${item.qty} = Rs. ${item.price * item.qty}\n`; });
-  orderText += `\n*Subtotal:* Rs. ${subtotal}\n*Delivery:* Rs. ${delivery}\n*Total: Rs. ${total}*\n`;
-  orderText += `*Payment:* ${payment}\n`;
-  if (notes) orderText += `*Notes:* ${notes}`;
-
-  const wa = settings.waNumber || '923324187360';
-  window.open(`https://wa.me/${wa}?text=${encodeURIComponent(orderText)}`, '_blank');
-}
-
-// ===== BOOKING =====
-function initBookingTableTypes() {
-  document.querySelectorAll('.table-type-card').forEach(card => {
-    card.addEventListener('click', () => {
-      document.querySelectorAll('.table-type-card').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      selectedTableType = card.dataset.type;
-      document.getElementById('bookTableType').value = selectedTableType;
-    });
-  });
-}
-
-function initBookingDateMin() {
-  const today = new Date().toISOString().split('T')[0];
-  const dateInput = document.getElementById('bookDate');
-  if (dateInput) dateInput.min = today;
-}
-
-function submitBooking() {
-  const name = document.getElementById('bookName').value.trim();
-  const phone = document.getElementById('bookPhone').value.trim();
-  const date = document.getElementById('bookDate').value;
-  const time = document.getElementById('bookTime').value;
-  const guests = document.getElementById('bookGuests').value;
-  const tableType = document.getElementById('bookTableType').value || 'Standard';
-  const notes = document.getElementById('bookNotes').value.trim();
-
-  if (!name || !phone || !date || !time || !guests) { showToast('⚠️ Please fill all required fields'); return; }
-
-  // Save to local storage
-  const booking = { id: Date.now(), name, phone, date, time, guests, tableType, notes };
-  bookings.push(booking);
-  localStorage.setItem('mirchi_bookings', JSON.stringify(bookings));
-
-  // WhatsApp message
-  let msg = `🌶️ *MIRCHI 360° - TABLE RESERVATION*\n\n`;
-  msg += `*Name:* ${name}\n*Phone:* ${phone}\n`;
-  msg += `*Date:* ${date}\n*Time:* ${time}\n`;
-  msg += `*Guests:* ${guests}\n*Table Type:* ${tableType}\n`;
-  if (notes) msg += `*Requests:* ${notes}`;
-
-  const wa = settings.waNumber || '923324187360';
-  window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank');
-
-  // Reset form
-  document.getElementById('bookName').value = '';
-  document.getElementById('bookPhone').value = '';
-  document.getElementById('bookDate').value = '';
-  document.getElementById('bookTime').value = '';
-  document.getElementById('bookGuests').value = '';
-  document.getElementById('bookTableType').value = '';
-  document.getElementById('bookNotes').value = '';
-  document.querySelectorAll('.table-type-card').forEach(c => c.classList.remove('selected'));
-  selectedTableType = '';
-
-  updateAdminStats();
-  showToast('✅ Reservation sent! We\'ll confirm soon.');
-}
-
-// ===== ADMIN =====
-function adminLogin() {
-  const user = document.getElementById('adminUser').value.trim();
-  const pass = document.getElementById('adminPass').value.trim();
-  const err = document.getElementById('loginError');
-
-  if (user === adminCreds.user && pass === adminCreds.pass) {
-    adminLoggedIn = true;
-    document.getElementById('adminLogin').style.display = 'none';
-    document.getElementById('adminDashboard').style.display = 'block';
-    renderAdminMenuTable();
-    renderAdminBookingsTable();
-    updateAdminStats();
-    err.style.display = 'none';
-  } else {
-    err.style.display = 'block';
-    document.getElementById('adminUser').value = '';
-    document.getElementById('adminPass').value = '';
-  }
-}
-
-function adminLogout() {
-  adminLoggedIn = false;
-  document.getElementById('adminLogin').style.display = 'flex';
-  document.getElementById('adminDashboard').style.display = 'none';
-  document.getElementById('adminUser').value = '';
-  document.getElementById('adminPass').value = '';
-}
-
-// Admin tabs
-document.querySelectorAll('.admin-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('.admin-tab-content').forEach(c => c.style.display = 'none');
-    document.getElementById(tab.dataset.tab).style.display = 'block';
-  });
-});
-
-function renderAdminMenuTable() {
-  const tbody = document.getElementById('adminMenuBody');
-  if (!tbody) return;
-  if (menuItems.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted)">No menu items yet. Add your first item!</td></tr>';
+  if (!name || !phone || !address) {
+    showToast('⚠️ Naam, Phone aur Address zaroor bhar ain!');
     return;
   }
-  tbody.innerHTML = menuItems.map((item, idx) => `
-    <tr>
-      <td>${item.image ? `<img class="admin-table-img" src="${item.image}" alt="${item.name}"/>` : `<span class="admin-table-emoji">${item.emoji || '🍽️'}</span>`}</td>
-      <td><strong>${item.name}</strong><br><small style="color:var(--text-muted)">${item.desc || ''}</small></td>
-      <td>${item.category}</td>
-      <td style="color:var(--gold);font-weight:700">Rs. ${item.price}</td>
-      <td>
-        <div class="admin-action-btns">
-          <button class="admin-edit-btn" onclick="editItem(${idx})">✏️ Edit</button>
-          <button class="admin-del-btn" onclick="deleteItem(${idx})">🗑️ Delete</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function renderAdminBookingsTable() {
-  const tbody = document.getElementById('adminBookingsBody');
-  if (!tbody) return;
-  if (bookings.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)">No reservations yet.</td></tr>';
+  if (!cart.length) {
+    showToast('⚠️ Pehle koi item cart mein daalein!');
     return;
   }
-  tbody.innerHTML = bookings.map((b, idx) => `
-    <tr>
-      <td>${idx + 1}</td>
-      <td><strong>${b.name}</strong></td>
-      <td>${b.phone}</td>
-      <td>${b.date}</td>
-      <td>${b.time}</td>
-      <td>${b.guests}</td>
-      <td><span style="color:var(--gold)">${b.tableType || 'Standard'}</span></td>
-      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis">${b.notes || '—'}</td>
-    </tr>
-  `).join('');
+
+  const orderLines = cart.map(i => `• ${i.name} (${i.sizeKey}) x${i.qty} = Rs. ${i.price * i.qty}`).join('\n');
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const msg = `🌶️ *MIRCHI 360° – New Order* 🌶️\n\n` +
+    `👤 *Naam:* ${name}\n📞 *Phone:* ${phone}\n📍 *Address:* ${address}\n\n` +
+    `🛒 *Order:*\n${orderLines}\n\n` +
+    `💰 *Sub Total:* Rs. ${total}\n🛵 *Delivery:* Rs. 50\n✅ *Total:* Rs. ${total + 50}\n\n` +
+    `💳 *Payment:* ${payment}` +
+    (note ? `\n📝 *Note:* ${note}` : '');
+
+  window.open(`https://wa.me/923324187360?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
-function updateAdminStats() {
-  const statItems = document.getElementById('statItems');
-  const statCats = document.getElementById('statCats');
-  const statBookings = document.getElementById('statBookings');
-  if (statItems) statItems.textContent = menuItems.length;
-  if (statCats) statCats.textContent = new Set(menuItems.map(i => i.category)).size;
-  if (statBookings) statBookings.textContent = bookings.length;
-}
+// ===== TABLE STATUS =====
+function initTableStatus() {
+  const grid = document.getElementById('tablesGrid');
+  // 20 tables – simulated status
+  const statuses = ['free','free','free','occupied','occupied','reserved','free','free','occupied','free',
+                    'occupied','free','reserved','free','free','occupied','free','free','free','occupied'];
+  statuses.forEach((status, i) => {
+    const el = document.createElement('div');
+    el.className = `table-item ${status}`;
+    const labels = { free: '✓', occupied: '✗', reserved: '~' };
+    el.title = `Table ${i+1}: ${status === 'free' ? 'Khali' : status === 'occupied' ? 'Bhara hua' : 'Reserved'}`;
+    el.innerHTML = `<span style="font-size:0.6rem;font-weight:900">${i+1}<br>${labels[status]}</span>`;
+    grid.appendChild(el);
+  });
 
-function clearBookings() {
-  if (confirm('Clear all reservations? This cannot be undone.')) {
-    bookings = [];
-    localStorage.setItem('mirchi_bookings', JSON.stringify(bookings));
-    renderAdminBookingsTable();
-    updateAdminStats();
-    showToast('🗑️ All reservations cleared');
-  }
-}
-
-// ===== ITEM MODAL =====
-function showAddItemModal() {
-  document.getElementById('modalTitle').textContent = 'Add Menu Item';
-  document.getElementById('itemName').value = '';
-  document.getElementById('itemCategory').value = '';
-  document.getElementById('itemPrice').value = '';
-  document.getElementById('itemEmoji').value = '';
-  document.getElementById('itemDesc').value = '';
-  document.getElementById('editItemIndex').value = '-1';
-  document.getElementById('itemImageData').value = '';
-  resetImagePreview();
-  document.getElementById('itemModal').style.display = 'flex';
-}
-
-function editItem(idx) {
-  const item = menuItems[idx];
-  document.getElementById('modalTitle').textContent = 'Edit Menu Item';
-  document.getElementById('itemName').value = item.name;
-  document.getElementById('itemCategory').value = item.category;
-  document.getElementById('itemPrice').value = item.price;
-  document.getElementById('itemEmoji').value = item.emoji || '';
-  document.getElementById('itemDesc').value = item.desc || '';
-  document.getElementById('editItemIndex').value = idx;
-  document.getElementById('itemImageData').value = item.image || '';
-  if (item.image) {
-    document.getElementById('imagePreview').innerHTML = `
-      <img src="${item.image}" alt="preview" style="width:100%;height:180px;object-fit:cover"/>
-      <div class="preview-change" onclick="document.getElementById('itemImageFile').click()">Click to change</div>
-    `;
-  } else {
-    resetImagePreview();
-  }
-  document.getElementById('itemModal').style.display = 'flex';
-}
-
-function closeItemModal() {
-  document.getElementById('itemModal').style.display = 'none';
-}
-
-function saveItem() {
-  const name = document.getElementById('itemName').value.trim();
-  const category = document.getElementById('itemCategory').value;
-  const price = parseFloat(document.getElementById('itemPrice').value);
-  const emoji = document.getElementById('itemEmoji').value.trim() || '🍽️';
-  const desc = document.getElementById('itemDesc').value.trim();
-  const image = document.getElementById('itemImageData').value;
-  const editIdx = parseInt(document.getElementById('editItemIndex').value);
-
-  if (!name || !category || !price) { showToast('⚠️ Name, category and price are required'); return; }
-
-  const item = { name, category, price, emoji, desc, image };
-
-  if (editIdx === -1) menuItems.push(item);
-  else menuItems[editIdx] = item;
-
-  localStorage.setItem('mirchi_menu', JSON.stringify(menuItems));
-  closeItemModal();
-  renderAdminMenuTable();
-  renderMenuGrid();
-  renderOrderItems();
-  renderOrderCategories();
-  updateAdminStats();
-  showToast(`✅ "${name}" ${editIdx === -1 ? 'added' : 'updated'} successfully`);
-}
-
-function deleteItem(idx) {
-  const name = menuItems[idx].name;
-  if (confirm(`Delete "${name}"?`)) {
-    menuItems.splice(idx, 1);
-    localStorage.setItem('mirchi_menu', JSON.stringify(menuItems));
-    renderAdminMenuTable();
-    renderMenuGrid();
-    renderOrderItems();
-    renderOrderCategories();
-    updateAdminStats();
-    showToast(`🗑️ "${name}" deleted`);
-  }
-}
-
-function previewImage(input) {
-  if (!input.files || !input.files[0]) return;
-  const file = input.files[0];
-  const reader = new FileReader();
-  reader.onload = e => {
-    const data = e.target.result;
-    document.getElementById('itemImageData').value = data;
-    document.getElementById('imagePreview').innerHTML = `
-      <img src="${data}" alt="preview" style="width:100%;height:180px;object-fit:cover"/>
-      <div class="preview-change" onclick="document.getElementById('itemImageFile').click()">Click to change</div>
-    `;
-  };
-  reader.readAsDataURL(file);
-}
-
-function resetImagePreview() {
-  document.getElementById('imagePreview').innerHTML = `
-    <div class="image-preview-placeholder" onclick="document.getElementById('itemImageFile').click()">
-      <div style="font-size:2rem">📸</div>
-      <div>Click to Upload Image</div>
-      <div style="font-size:0.75rem;opacity:0.6">JPG, PNG, WebP supported</div>
-    </div>
+  // Legend
+  const legend = document.createElement('div');
+  legend.style.cssText = 'display:flex;gap:1rem;font-size:0.7rem;margin-top:0.5rem;flex-wrap:wrap';
+  legend.innerHTML = `
+    <span style="color:#22c55e">✓ Khali</span>
+    <span style="color:#e8141c">✗ Bhara</span>
+    <span style="color:#f5a623">~ Reserved</span>
   `;
-  document.getElementById('itemImageFile').value = '';
+  grid.parentNode.insertBefore(legend, grid.nextSibling);
 }
 
-// ===== SETTINGS =====
-function changePassword() {
-  const oldP = document.getElementById('oldPass').value;
-  const newP = document.getElementById('newPass').value;
-  const confP = document.getElementById('confirmPass').value;
-  const msg = document.getElementById('passMsg');
-
-  if (oldP !== adminCreds.pass) { msg.style.color = '#ff6b6b'; msg.textContent = '❌ Current password incorrect'; return; }
-  if (!newP) { msg.style.color = '#ff6b6b'; msg.textContent = '❌ New password cannot be empty'; return; }
-  if (newP !== confP) { msg.style.color = '#ff6b6b'; msg.textContent = '❌ Passwords do not match'; return; }
-
-  adminCreds.pass = newP;
-  localStorage.setItem('mirchi_creds', JSON.stringify(adminCreds));
-  msg.style.color = '#4CAF50';
-  msg.textContent = '✅ Password updated successfully';
-  document.getElementById('oldPass').value = '';
-  document.getElementById('newPass').value = '';
-  document.getElementById('confirmPass').value = '';
-}
-
-function saveSettings() {
-  settings.waNumber = document.getElementById('settingWa').value.trim();
-  settings.deliveryCharge = +document.getElementById('settingDelivery').value || 50;
-  localStorage.setItem('mirchi_settings', JSON.stringify(settings));
-  showToast('✅ Settings saved');
+// ===== TOAST =====
+function showToast(msg) {
+  let toast = document.getElementById('globalToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'globalToast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
 // ===== AI ASSISTANT =====
-function toggleAssistant() {
-  const panel = document.getElementById('assistantPanel');
-  panel.classList.toggle('open');
+function toggleAI() {
+  document.getElementById('aiAssistant').classList.toggle('open');
 }
 
-function quickMsg(text) {
-  document.getElementById('assistantInput').value = text;
-  sendAssistantMsg();
-}
+const RESTAURANT_CONTEXT = `
+You are the AI assistant for Mirchi 360, a premium Pakistani restaurant located in Tando Adam, Sanghar, Pakistan.
+You speak EXCLUSIVELY in Urdu language (Pakistan's national language). Do not reply in English.
+Use warm, helpful, conversational Urdu. You can use Roman Urdu or pure Urdu script.
 
-async function sendAssistantMsg() {
-  const input = document.getElementById('assistantInput');
-  const msg = input.value.trim();
-  if (!msg) return;
-  input.value = '';
-
-  appendAssistantMsg(msg, 'user');
-  conversationHistory.push({ role: 'user', content: msg });
-
-  // Show typing
-  const typingId = appendTyping();
-
-  try {
-    const systemPrompt = `You are the friendly AI assistant for MIRCHI 360°, a premium Pakistani restaurant in Tando Adam, Sanghar, Pakistan. 
-
-Restaurant Info:
-- Name: Mirchi 360°
-- Tagline: Three Sixty Degrees of Flavour
-- Location: Tando Adam-Sanghar Road, Tando Adam, Sindh, Pakistan
-- Hours: Daily 12:00 PM – 1:00 AM
+RESTAURANT INFO:
+- Name: Mirchi 360° – Three Sixty Degrees of Flavour
+- Location: Tando Adam – Sanghar Road, Tando Adam, Sindh, Pakistan  
 - Phone: 0332-4187360, 0319-7833360, 0305-8368360
 - PTCL: 0235-541060, 0235-542361
-- WhatsApp: 03324187360
-- Delivery: Available across Tando Adam & Sanghar (Rs. 50 delivery charge)
-- Payment: EasyPaisa, JazzCash, Cash on Delivery, Bank Transfer
+- Hours: Roz (Daily) – Dopahar 12 baje se Raat 1 baje tak
+- WhatsApp: 0332-4187360
+- Home Delivery: Tando Adam & Sanghar mein available
+- Established: 2020
 
-Menu Categories: Karahi, BBQ, Desi Items, Fast Food, Chinese, Pizza, Vegetable, Rolls, Fish, Salads, Paratha & Naan, Juices, Desserts, Beverages
+TABLE STATUS:
+- Total 20 tables
+- Abhi lagbhag 12 tables khali hain, 5 occupied, 3 reserved
+- Rush hours: Sham 7 baje se 9 baje tak (bohot zyada bheed)
+- Quiet time: Dopahar 12-2 baje, Raat 10-11 baje
+- Reservation ke liye call karein: 0332-4187360
 
-Popular Items:
-- Chicken Karahi Rs. 650, Mutton Karahi Rs. 950
-- Chicken BBQ Platter Rs. 750, Seekh Kabab Rs. 350
-- Desi Biryani Rs. 350, Mutton Handi Rs. 900
-- Gourmet Pizza Rs. 700, Chicken Burger Rs. 280
+STOCK STATUS (approx):
+- Chicken items: Har waqt available
+- Mutton: Limited quantity – pehle call karke confirm karein
+- Fish (BBQ Sanghar): Weekend par special – weekdays bhi available
+- Fresh Juices: Sabhi available daily
+- Kunafa & special desserts: Evening ke baad better availability
 
-Table Types: Standard (2-4 guests), Family (4-8 guests), VIP Suite (private), Event Hall (20+ guests)
+MOST POPULAR / TASTY ITEMS:
+1. Chicken Karahi – Sanghar mein mashoor! Rs. 1200-2400
+2. Mutton Handi – Sabse zyada pasand kiya jaata hai – Rs. 2100-3600
+3. Royal Sindhi Biryani – Must try! – Rs. 1050-1800
+4. BBQ Platter – Best value! Rs. 2800-4300
+5. Tikka Biryani – Customer favourite – Rs. 1150-2000
+6. Chicken Tikka Pizza – Desi-Italian fusion – Rs. 530-1300
+7. Dynamite Chicken – New hit item! Rs. 700
+8. Lemon Mint shake – Best summer drink – Rs. 290
+9. Kunafa – Mithay mein best! Rs. 800
+10. Chicken White Karahi – Ladies ka favourite – Rs. 1250-2500
 
-For table reservations, ask for: name, phone, date, time, number of guests, table type, and special requests. Then tell them to use the Reserve section on the website or call the phone numbers.
+BUDGET OPTIONS (under Rs. 500):
+- Plain Paratha: Rs. 70
+- Chapati: Rs. 30
+- Naan: Rs. 40
+- Garlic Naan: Rs. 65
+- Aalu Paratha: Rs. 270
+- Plain Rice: Rs. 350
+- French Fries: Rs. 300
+- Hot N Sour Soup: Rs. 280
+- Lemon Mint: Rs. 290
+- Green Salad: Rs. 150
+- Raita: Rs. 150
+- Chicken Roll: Rs. 280
 
-Respond in the same language the user uses (Urdu or English). Be warm, helpful and professional. Keep responses concise.`;
+DELIVERY INFO:
+- Delivery charge: Rs. 50 flat
+- Order via WhatsApp: 0332-4187360
+- Approximate delivery time: 30-45 minutes
+- Area: Tando Adam aur Sanghar city mein delivery
 
+Be helpful, friendly, and always respond ONLY in Urdu. If someone asks about a specific food, recommend it enthusiastically and mention its price.
+`;
+
+async function sendAIMessage() {
+  const input = document.getElementById('aiInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  appendAIMessage(text, 'user');
+  const thinkingId = appendThinking();
+
+  try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
-        system: systemPrompt,
-        messages: conversationHistory
+        system: RESTAURANT_CONTEXT,
+        messages: [{ role: 'user', content: text }]
       })
     });
-
-    removeTyping(typingId);
-
-    if (!response.ok) throw new Error('API error');
     const data = await response.json();
-    const replyText = data.content?.[0]?.text || 'I apologize, I could not process your request. Please call us at 0332-4187360.';
-
-    appendAssistantMsg(replyText, 'bot');
-    conversationHistory.push({ role: 'assistant', content: replyText });
-
+    removeThinking(thinkingId);
+    const reply = data.content?.map(c => c.text || '').join('') || 'معذرت، کوئی جواب نہیں ملا۔';
+    appendAIMessage(reply, 'bot');
   } catch (err) {
-    removeTyping(typingId);
-    const fallback = getFallbackResponse(msg.toLowerCase());
-    appendAssistantMsg(fallback, 'bot');
-    conversationHistory.push({ role: 'assistant', content: fallback });
+    removeThinking(thinkingId);
+    appendAIMessage('معذرت، ابھی جواب دینے میں مسئلہ ہے۔ براہ کرم دوبارہ کوشش کریں۔ 🌶️', 'bot');
   }
 }
 
-function getFallbackResponse(msg) {
-  if (msg.includes('book') || msg.includes('table') || msg.includes('reserve') || msg.includes('booking')) {
-    return `🪑 <strong>Table Reservation</strong><br><br>For booking, please:<br>1. Use our <a href="#booking" style="color:var(--gold)">Reserve section</a> on this page<br>2. Or call us: <strong>0332-4187360</strong><br>3. Or WhatsApp: <a href="https://wa.me/923324187360" style="color:var(--gold)">03324187360</a><br><br>We have Standard, Family, VIP Suite & Event Hall options! 🎉`;
-  }
-  if (msg.includes('time') || msg.includes('hour') || msg.includes('open') || msg.includes('timing')) {
-    return `🕐 <strong>Opening Hours</strong><br><br>We are open <strong>Daily: 12:00 PM – 1:00 AM</strong><br><br>Lunch: 12 PM – 4 PM<br>Dinner: 7 PM – 1 AM<br><br>Welcome anytime! 🌶️`;
-  }
-  if (msg.includes('menu') || msg.includes('food') || msg.includes('item')) {
-    return `🍽️ <strong>Our Menu</strong><br><br>We offer: Karahi, BBQ, Biryani, Pizza, Chinese, Fast Food, Fish, Rolls, Desserts & more!<br><br><a href="#menu" style="color:var(--gold)">Browse our full menu</a> or call <strong>0332-4187360</strong> 🌶️`;
-  }
-  if (msg.includes('order') || msg.includes('deliver')) {
-    return `📦 <strong>Online Ordering</strong><br><br>Use our <a href="#order" style="color:var(--gold)">Order section</a> to place your order!<br><br>Delivery charge: Rs. 50<br>Payment: EasyPaisa, JazzCash, COD, Bank Transfer<br><br>Or WhatsApp us: <a href="https://wa.me/923324187360" style="color:var(--gold)">03324187360</a> 🚴`;
-  }
-  if (msg.includes('location') || msg.includes('address') || msg.includes('where')) {
-    return `📍 <strong>Our Location</strong><br><br>Tando Adam-Sanghar Road,<br>Tando Adam, Sindh, Pakistan<br><br><a href="https://maps.app.goo.gl/iECvdpyygA3gvBbB6" target="_blank" style="color:var(--gold)">Open in Google Maps</a> 🗺️`;
-  }
-  if (msg.includes('price') || msg.includes('cost') || msg.includes('rate')) {
-    return `💰 <strong>Our Prices</strong><br><br>• Chicken Karahi: Rs. 650<br>• Mutton Karahi: Rs. 950<br>• BBQ Platter: Rs. 750<br>• Biryani: Rs. 350<br>• Pizza: Rs. 700<br>• Burger: Rs. 280<br><br><a href="#menu" style="color:var(--gold)">See full menu</a> 🌶️`;
-  }
-  return `👋 Assalamu Alaikum! I'm here to help with:<br><br>🪑 Table Reservations<br>🍽️ Menu Information<br>📦 Order Placement<br>📍 Location & Hours<br><br>Call us: <strong>0332-4187360</strong><br>WhatsApp: <a href="https://wa.me/923324187360" style="color:var(--gold)">03324187360</a>`;
+function sendQuickMsg(text) {
+  document.getElementById('aiInput').value = text;
+  sendAIMessage();
 }
 
-function appendAssistantMsg(text, type) {
-  const messages = document.getElementById('assistantMessages');
-  const div = document.createElement('div');
-  div.className = `assistant-msg assistant-msg-${type}`;
-  div.innerHTML = `<div class="msg-bubble">${text}</div>`;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
+function appendAIMessage(text, role) {
+  const container = document.getElementById('aiMessages');
+  const msg = document.createElement('div');
+  msg.className = `ai-msg ${role}`;
+  msg.innerHTML = `<div class="msg-bubble">${text}</div>`;
+  container.appendChild(msg);
+  container.scrollTop = container.scrollHeight;
 }
 
-function appendTyping() {
-  const messages = document.getElementById('assistantMessages');
-  const id = 'typing-' + Date.now();
-  const div = document.createElement('div');
-  div.className = 'assistant-msg assistant-msg-bot';
-  div.id = id;
-  div.innerHTML = `<div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
+function appendThinking() {
+  const container = document.getElementById('aiMessages');
+  const id = 'thinking-' + Date.now();
+  const msg = document.createElement('div');
+  msg.className = 'ai-msg bot';
+  msg.id = id;
+  msg.innerHTML = `<div class="msg-bubble thinking"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  container.appendChild(msg);
+  container.scrollTop = container.scrollHeight;
   return id;
 }
 
-function removeTyping(id) {
+function removeThinking(id) {
   const el = document.getElementById(id);
   if (el) el.remove();
 }
-
-// ===== SCROLL REVEAL =====
-function initReveal() {
-  initRevealElements();
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
-
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-}
-
-function initRevealElements() {
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
-    });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.reveal:not(.visible)').forEach(el => observer.observe(el));
-}
-
-// ===== TOAST =====
-function showToast(msg) {
-  let toast = document.querySelector('.toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.className = 'toast';
-    document.body.appendChild(toast);
-  }
-  toast.textContent = '';
-  toast.innerHTML = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
-}
-
-// ===== CLOSE MODAL ON OUTSIDE CLICK =====
-document.getElementById('itemModal').addEventListener('click', e => {
-  if (e.target === document.getElementById('itemModal')) closeItemModal();
-});
-
-// ===== ENTER KEY for admin login =====
-document.getElementById('adminPass').addEventListener('keydown', e => {
-  if (e.key === 'Enter') adminLogin();
-});
-document.getElementById('adminUser').addEventListener('keydown', e => {
-  if (e.key === 'Enter') adminLogin();
-});
-
-// ===== SMOOTH CURSOR RING UPDATE =====
-(function cursorRingLoop() {
-  const ring = document.getElementById('cursorRing');
-  let tx = 0, ty = 0, cx = 0, cy = 0;
-  document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
-  function update() {
-    cx += (tx - cx) * 0.12;
-    cy += (ty - cy) * 0.12;
-    ring.style.left = cx + 'px';
-    ring.style.top = cy + 'px';
-    requestAnimationFrame(update);
-  }
-  update();
-})();
-
-// ===== KEYBOARD SHORTCUT: ENTER for assistant =====
-document.getElementById('assistantInput')?.addEventListener('keydown', e => {
-  if (e.key === 'Enter') sendAssistantMsg();
-});
