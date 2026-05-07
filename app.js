@@ -744,15 +744,29 @@ function clearBookings() {
 }
 
 // ===== ITEM MODAL =====
+function togglePriceFields() {
+  const type = document.getElementById('itemPriceType').value;
+  document.getElementById('priceSingle').style.display   = (type === 'single')   ? '' : 'none';
+  document.getElementById('priceHalfFull').style.display = (type === 'halfFull')  ? '' : 'none';
+  document.getElementById('priceSML').style.display      = (type === 'sml')       ? '' : 'none';
+}
+
 function showAddItemModal() {
   document.getElementById('modalTitle').textContent = 'Add Menu Item';
   document.getElementById('itemName').value = '';
   document.getElementById('itemCategory').value = '';
-  document.getElementById('itemPrice').value = '';
   document.getElementById('itemEmoji').value = '';
   document.getElementById('itemDesc').value = '';
   document.getElementById('editItemIndex').value = '-1';
   document.getElementById('itemImageData').value = '';
+  document.getElementById('itemPriceType').value = 'single';
+  document.getElementById('itemPrice').value = '';
+  document.getElementById('itemPriceHalf').value = '';
+  document.getElementById('itemPriceFull').value = '';
+  document.getElementById('itemPriceS').value = '';
+  document.getElementById('itemPriceM').value = '';
+  document.getElementById('itemPriceL').value = '';
+  togglePriceFields();
   resetImagePreview();
   document.getElementById('itemModal').style.display = 'flex';
 }
@@ -762,12 +776,45 @@ function editItem(idx) {
   document.getElementById('modalTitle').textContent = 'Edit Menu Item';
   document.getElementById('itemName').value = item.name;
   document.getElementById('itemCategory').value = item.category;
-  const basePrice = item.sizes && item.sizes.length > 0 ? item.sizes[0].price : (item.price || 0);
-  document.getElementById('itemPrice').value = basePrice;
   document.getElementById('itemEmoji').value = item.emoji || '';
   document.getElementById('itemDesc').value = item.desc || '';
   document.getElementById('editItemIndex').value = idx;
   document.getElementById('itemImageData').value = item.image || '';
+
+  // Clear all price fields first
+  document.getElementById('itemPrice').value = '';
+  document.getElementById('itemPriceHalf').value = '';
+  document.getElementById('itemPriceFull').value = '';
+  document.getElementById('itemPriceS').value = '';
+  document.getElementById('itemPriceM').value = '';
+  document.getElementById('itemPriceL').value = '';
+
+  // Detect size type and populate
+  const sizes = item.sizes || [];
+  const labels = sizes.map(s => s.label.toLowerCase());
+  if (sizes.length === 1 && !labels.includes('half') && !labels.includes('full') && !labels.includes('small') && !labels.includes('medium') && !labels.includes('large')) {
+    document.getElementById('itemPriceType').value = 'single';
+    document.getElementById('itemPrice').value = sizes[0].price;
+  } else if (labels.includes('half') || labels.includes('full')) {
+    document.getElementById('itemPriceType').value = 'halfFull';
+    sizes.forEach(s => {
+      if (s.label.toLowerCase() === 'half') document.getElementById('itemPriceHalf').value = s.price;
+      if (s.label.toLowerCase() === 'full') document.getElementById('itemPriceFull').value = s.price;
+    });
+  } else if (labels.includes('small') || labels.includes('medium') || labels.includes('large')) {
+    document.getElementById('itemPriceType').value = 'sml';
+    sizes.forEach(s => {
+      if (s.label.toLowerCase() === 'small')  document.getElementById('itemPriceS').value = s.price;
+      if (s.label.toLowerCase() === 'medium') document.getElementById('itemPriceM').value = s.price;
+      if (s.label.toLowerCase() === 'large')  document.getElementById('itemPriceL').value = s.price;
+    });
+  } else {
+    // fallback — show single price with first size price
+    document.getElementById('itemPriceType').value = 'single';
+    document.getElementById('itemPrice').value = sizes[0]?.price || item.price || '';
+  }
+  togglePriceFields();
+
   if (item.image) {
     document.getElementById('imagePreview').innerHTML = `
       <img src="${item.image}" alt="preview" style="width:100%;height:180px;object-fit:cover"/>
@@ -784,27 +831,38 @@ function closeItemModal() {
 }
 
 function saveItem() {
-  const name = document.getElementById('itemName').value.trim();
+  const name     = document.getElementById('itemName').value.trim();
   const category = document.getElementById('itemCategory').value;
-  const price = parseFloat(document.getElementById('itemPrice').value);
-  const emoji = document.getElementById('itemEmoji').value.trim() || '🍽️';
-  const desc = document.getElementById('itemDesc').value.trim();
-  const image = document.getElementById('itemImageData').value;
-  const editIdx = parseInt(document.getElementById('editItemIndex').value);
+  const emoji    = document.getElementById('itemEmoji').value.trim() || '🍽️';
+  const desc     = document.getElementById('itemDesc').value.trim();
+  const image    = document.getElementById('itemImageData').value;
+  const editIdx  = parseInt(document.getElementById('editItemIndex').value);
+  const priceType = document.getElementById('itemPriceType').value;
 
-  if (!name || !category || !price) { showToast('⚠️ Name, category and price are required'); return; }
+  if (!name || !category) { showToast('⚠️ Name aur Category zaroori hain'); return; }
 
-  const item = { name, category, emoji, desc, image, sizes: [{ label: 'Regular', price }] };
+  let sizes = [];
+  if (priceType === 'single') {
+    const p = parseFloat(document.getElementById('itemPrice').value);
+    if (!p) { showToast('⚠️ Price daalna zaroori hai'); return; }
+    sizes = [{ label: 'Regular', price: p }];
+  } else if (priceType === 'halfFull') {
+    const half = parseFloat(document.getElementById('itemPriceHalf').value);
+    const full = parseFloat(document.getElementById('itemPriceFull').value);
+    if (!half || !full) { showToast('⚠️ Half aur Full dono prices daalne zaroori hain'); return; }
+    sizes = [{ label: 'Half', price: half }, { label: 'Full', price: full }];
+  } else if (priceType === 'sml') {
+    const s = parseFloat(document.getElementById('itemPriceS').value);
+    const m = parseFloat(document.getElementById('itemPriceM').value);
+    const l = parseFloat(document.getElementById('itemPriceL').value);
+    if (!s || !m || !l) { showToast('⚠️ Small, Medium aur Large teeno prices daalne zaroori hain'); return; }
+    sizes = [{ label: 'Small', price: s }, { label: 'Medium', price: m }, { label: 'Large', price: l }];
+  }
+
+  const item = { name, category, emoji, desc, image, sizes };
 
   if (editIdx === -1) menuItems.push(item);
-  else {
-    // preserve existing sizes if editing, just update price of first size
-    if (menuItems[editIdx].sizes && menuItems[editIdx].sizes.length > 1) {
-      menuItems[editIdx] = { ...menuItems[editIdx], name, category, emoji, desc, image };
-    } else {
-      menuItems[editIdx] = item;
-    }
-  }
+  else menuItems[editIdx] = item;
 
   localStorage.setItem('mirchi_menu', JSON.stringify(menuItems));
   closeItemModal();
@@ -813,7 +871,7 @@ function saveItem() {
   renderOrderItems();
   renderOrderCategories();
   updateAdminStats();
-  showToast(`✅ "${name}" ${editIdx === -1 ? 'added' : 'updated'} successfully`);
+  showToast(`✅ "${name}" ${editIdx === -1 ? 'add' : 'update'} ho gaya`);
 }
 
 function deleteItem(idx) {
@@ -1080,3 +1138,4 @@ document.getElementById('adminUser').addEventListener('keydown', e => {
 document.getElementById('assistantInput')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') sendAssistantMsg();
 });
+
