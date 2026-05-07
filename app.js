@@ -1138,4 +1138,3 @@ document.getElementById('adminUser').addEventListener('keydown', e => {
 document.getElementById('assistantInput')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') sendAssistantMsg();
 });
-
