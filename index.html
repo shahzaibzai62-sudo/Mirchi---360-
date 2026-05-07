@@ -1,1 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirchi 360 – Three Sixty Degrees of Flavour</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+<!-- ===== PRELOADER ===== -->
+<div id="preloader">
+  <div class="preloader-inner">
+    <div class="flame-loader">
+      <div class="flame f1"></div>
+      <div class="flame f2"></div>
+      <div class="flame f3"></div>
+    </div>
+    <div class="preloader-logo">MIRCHI <span>360</span></div>
+    <div class="preloader-bar"><div class="preloader-fill"></div></div>
+  </div>
+</div>
+
+<!-- ===== FLOATING WHATSAPP ===== -->
+<a href="https://wa.me/923324187360" class="whatsapp-float" target="_blank" aria-label="WhatsApp">
+  <i class="fab fa-whatsapp"></i>
+  <span class="wa-pulse"></span>
+</a>
+
+<!-- ===== NAVBAR ===== -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <img src="logo.png" alt="Mirchi 360" onerror="this.style.display='none';document.getElementById('text-logo').style.display='flex'" />
+      <div id="text-logo" class="text-logo" style="display:none">MIRCHI<span>360</span></div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#order">Order</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="#admin" class="nav-admin"><i class="fas fa-lock"></i> Admin</a></li>
+    </ul>
+    <button class="order-btn-nav" onclick="scrollToOrder()">Order Now 🌶️</button>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#home" onclick="closeMob()">Home</a>
+    <a href="#menu" onclick="closeMob()">Menu</a>
+    <a href="#order" onclick="closeMob()">Order Online</a>
+    <a href="#about" onclick="closeMob()">About</a>
+    <a href="#contact" onclick="closeMob()">Contact</a>
+    <a href="#admin" onclick="closeMob()">Admin Panel</a>
+  </div>
+</nav>
+
+<!-- ===== HERO SECTION ===== -->
+<section id="home" class="hero">
+  <div class="hero-bg">
+    <div class="ember" style="--delay:0s;--x:10%;--size:6px"></div>
+    <div class="ember" style="--delay:0.5s;--x:25%;--size:4px"></div>
+    <div class="ember" style="--delay:1s;--x:40%;--size:8px"></div>
+    <div class="ember" style="--delay:1.5s;--x:60%;--size:5px"></div>
+    <div class="ember" style="--delay:2s;--x:75%;--size:7px"></div>
+    <div class="ember" style="--delay:2.5s;--x:88%;--size:4px"></div>
+    <div class="ember" style="--delay:0.3s;--x:55%;--size:6px"></div>
+    <div class="ember" style="--delay:1.8s;--x:33%;--size:3px"></div>
+    <div class="hero-flames">
+      <div class="hero-flame hf1"></div>
+      <div class="hero-flame hf2"></div>
+      <div class="hero-flame hf3"></div>
+    </div>
+  </div>
+  <div class="hero-content">
+    <p class="hero-tagline reveal">🌶️ Welcome to</p>
+    <h1 class="hero-title reveal">
+      <span class="title-mirchi">MIRCHI</span>
+      <span class="title-360">360°</span>
+    </h1>
+    <p class="hero-sub reveal">Three Sixty Degrees of Flavour</p>
+    <p class="hero-desc reveal">Experience the finest Pakistani cuisine — from sizzling Karahis to smoky BBQ, authentic Desi Handi to gourmet Pizzas. Located in Tando Adam, Sanghar.</p>
+    <div class="hero-btns reveal">
+      <button class="btn-primary" onclick="scrollToOrder()">
+        <i class="fas fa-fire"></i> Order Online
+      </button>
+      <button class="btn-secondary" onclick="document.getElementById('menu').scrollIntoView({behavior:'smooth'})">
+        <i class="fas fa-utensils"></i> View Menu
+      </button>
+    </div>
+    <div class="hero-stats reveal">
+      <div class="stat"><span class="stat-num" data-target="50">0</span><span>+</span><p>Menu Items</p></div>
+      <div class="stat-div"></div>
+      <div class="stat"><span class="stat-num" data-target="1000">0</span><span>+</span><p>Happy Customers</p></div>
+      <div class="stat-div"></div>
+      <div class="stat"><span class="stat-num" data-target="5">0</span><span>★</span><p>Rating</p></div>
+    </div>
+  </div>
+  <div class="hero-scroll-hint">
+    <span>Scroll to Explore</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ===== MARQUEE ===== -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>🌶️ Chicken Karahi</span><span>•</span>
+    <span>🔥 Mutton BBQ</span><span>•</span>
+    <span>🍕 Gourmet Pizza</span><span>•</span>
+    <span>🍗 Desi Biryani</span><span>•</span>
+    <span>🥤 Fresh Juices</span><span>•</span>
+    <span>🍜 Chinese Specials</span><span>•</span>
+    <span>🌯 Rolls & Wraps</span><span>•</span>
+    <span>🍦 Ice Cream & Desserts</span><span>•</span>
+    <span>🌶️ Chicken Karahi</span><span>•</span>
+    <span>🔥 Mutton BBQ</span><span>•</span>
+    <span>🍕 Gourmet Pizza</span><span>•</span>
+    <span>🍗 Desi Biryani</span><span>•</span>
+    <span>🥤 Fresh Juices</span><span>•</span>
+    <span>🍜 Chinese Specials</span><span>•</span>
+    <span>🌯 Rolls & Wraps</span><span>•</span>
+    <span>🍦 Ice Cream & Desserts</span>
+  </div>
+</div>
+
+<!-- ===== MENU SECTION ===== -->
+<section id="menu" class="menu-section">
+  <div class="section-header">
+    <p class="section-tag">Our Menu</p>
+    <h2 class="section-title">A Feast for Every Craving</h2>
+    <p class="section-sub">Authentic flavours crafted with passion — explore our full menu</p>
+  </div>
+
+  <!-- Category Tabs -->
+  <div class="menu-tabs" id="menuTabs">
+    <button class="tab-btn active" data-cat="all">All</button>
+    <button class="tab-btn" data-cat="desi">Desi Items</button>
+    <button class="tab-btn" data-cat="karahi">Karahi</button>
+    <button class="tab-btn" data-cat="bbq">BBQ</button>
+    <button class="tab-btn" data-cat="fastfood">Fast Food</button>
+    <button class="tab-btn" data-cat="chinese">Chinese</button>
+    <button class="tab-btn" data-cat="pizza">Pizza</button>
+    <button class="tab-btn" data-cat="vegetable">Vegetable</button>
+    <button class="tab-btn" data-cat="rolls">Rolls</button>
+    <button class="tab-btn" data-cat="fish">Fish</button>
+    <button class="tab-btn" data-cat="salads">Salads</button>
+    <button class="tab-btn" data-cat="paratha">Paratha & Naan</button>
+    <button class="tab-btn" data-cat="juices">Juices</button>
+    <button class="tab-btn" data-cat="desserts">Desserts</button>
+    <button class="tab-btn" data-cat="beverages">Beverages</button>
+  </div>
+
+  <div class="menu-grid" id="menuGrid">
+    <!-- JS renders cards -->
+  </div>
+</section>
+
+<!-- ===== ORDER SECTION ===== -->
+<section id="order" class="order-section">
+  <div class="order-bg-effect"></div>
+  <div class="section-header light">
+    <p class="section-tag">Online Ordering</p>
+    <h2 class="section-title">Order Fresh, Delivered Hot 🔥</h2>
+    <p class="section-sub">Place your order and we'll deliver right to your doorstep</p>
+  </div>
+
+  <div class="order-container">
+    <!-- Cart -->
+    <div class="cart-panel">
+      <h3><i class="fas fa-shopping-cart"></i> Your Order</h3>
+      <div class="cart-items" id="cartItems">
+        <div class="cart-empty">
+          <i class="fas fa-fire" style="font-size:2rem;color:var(--accent)"></i>
+          <p>Your cart is empty</p>
+          <span>Add items from the menu above</span>
+        </div>
+      </div>
+      <div class="cart-summary" id="cartSummary" style="display:none">
+        <div class="summary-row"><span>Subtotal</span><span id="cartSubtotal">Rs. 0</span></div>
+        <div class="summary-row"><span>Delivery</span><span>Rs. 50</span></div>
+        <div class="summary-row total"><span>Total</span><span id="cartTotal">Rs. 50</span></div>
+      </div>
+    </div>
+
+    <!-- Order Form -->
+    <div class="order-form-panel">
+      <h3><i class="fas fa-map-marker-alt"></i> Delivery Details</h3>
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" id="custName" placeholder="Your name" />
+      </div>
+      <div class="form-group">
+        <label>Phone Number *</label>
+        <input type="tel" id="custPhone" placeholder="+92 3XX XXXXXXX" />
+      </div>
+      <div class="form-group">
+        <label>Delivery Address *</label>
+        <textarea id="custAddr" placeholder="Street, Area, Tando Adam / Sanghar" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Special Instructions</label>
+        <textarea id="custNote" placeholder="Extra spicy? No onions? Let us know..." rows="2"></textarea>
+      </div>
+
+      <h3 style="margin-top:1.5rem"><i class="fas fa-credit-card"></i> Payment Method</h3>
+      <div class="payment-options">
+        <label class="pay-opt active" id="payEasy">
+          <input type="radio" name="payment" value="easypaisa" checked />
+          <div class="pay-icon"><i class="fas fa-mobile-alt"></i></div>
+          <span>EasyPaisa</span>
+        </label>
+        <label class="pay-opt" id="payJazz">
+          <input type="radio" name="payment" value="jazzcash" />
+          <div class="pay-icon"><i class="fas fa-wallet"></i></div>
+          <span>JazzCash</span>
+        </label>
+        <label class="pay-opt" id="payCash">
+          <input type="radio" name="payment" value="cash" />
+          <div class="pay-icon"><i class="fas fa-money-bill-wave"></i></div>
+          <span>Cash on Delivery</span>
+        </label>
+        <label class="pay-opt" id="payBank">
+          <input type="radio" name="payment" value="bank" />
+          <div class="pay-icon"><i class="fas fa-university"></i></div>
+          <span>Bank Transfer</span>
+        </label>
+      </div>
+
+      <div class="payment-details" id="paymentDetails" style="display:none"></div>
+
+      <button class="place-order-btn" onclick="placeOrder()">
+        <i class="fab fa-whatsapp"></i> Place Order via WhatsApp
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT SECTION ===== -->
+<section id="about" class="about-section">
+  <div class="about-grid">
+    <div class="about-visual">
+      <div class="about-logo-big">
+        <div class="logo-ring">
+          <div class="logo-text-top">MIRCHI 360</div>
+          <div class="logo-center">
+            <div class="big-flame">
+              <div class="flame-layer l1"></div>
+              <div class="flame-layer l2"></div>
+              <div class="flame-layer l3"></div>
+            </div>
+            <span>360°</span>
+          </div>
+          <div class="logo-text-bottom">THREE SIXTY DEGREES</div>
+        </div>
+      </div>
+      <div class="about-badge b1">Est. 2020</div>
+      <div class="about-badge b2">🌶️ Authentic</div>
+      <div class="about-badge b3">🔥 Fresh Daily</div>
+    </div>
+    <div class="about-text">
+      <p class="section-tag">Our Story</p>
+      <h2 class="section-title dark">360° of Authentic Taste</h2>
+      <p>Welcome to <strong>Mirchi 360</strong> — where every dish is crafted with love, tradition, and the finest spices. Located in the heart of <strong>Tando Adam, Sanghar</strong>, we bring you a full circle of culinary excellence.</p>
+      <p>From sizzling Karahis to mouthwatering BBQ platters, crispy fast food to comforting Desi Handi — our menu spans the full 360 degrees of Pakistani cuisine and beyond.</p>
+      <div class="about-features">
+        <div class="feat-item"><i class="fas fa-fire"></i><div><strong>Fresh & Hot</strong><p>Every order cooked fresh to order</p></div></div>
+        <div class="feat-item"><i class="fas fa-truck"></i><div><strong>Home Delivery</strong><p>Fast delivery across Tando Adam & Sanghar</p></div></div>
+        <div class="feat-item"><i class="fas fa-star"></i><div><strong>5-Star Quality</strong><p>Premium ingredients, authentic recipes</p></div></div>
+        <div class="feat-item"><i class="fas fa-clock"></i><div><strong>Open Daily</strong><p>Lunch & Dinner — 12 PM to 1 AM</p></div></div>
+      </div>
+      <div class="about-contact-row">
+        <a href="tel:+923324187360" class="contact-pill"><i class="fas fa-phone"></i> 0332-4187360</a>
+        <a href="tel:+923197833360" class="contact-pill"><i class="fas fa-phone"></i> 0319-7833360</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section class="testimonials-section">
+  <div class="section-header light">
+    <p class="section-tag">Customer Reviews</p>
+    <h2 class="section-title">What Our Guests Say</h2>
+  </div>
+  <div class="testimonials-carousel" id="testimonialsCarousel">
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p>"Best Chicken Karahi in all of Sanghar! The flavours are absolutely incredible. We visit every weekend."</p>
+      <div class="reviewer"><div class="reviewer-avatar">AM</div><div><strong>Ahmed Mirza</strong><span>Tando Adam</span></div></div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p>"Mirchi 360's BBQ Platter is unmatched. The seekh kabab and tikka are perfectly marinated. Highly recommended!"</p>
+      <div class="reviewer"><div class="reviewer-avatar">SF</div><div><strong>Sara Fatima</strong><span>Sanghar</span></div></div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p>"The pizza is surprisingly amazing for a desi restaurant! And the lemon mint is so refreshing. Love this place."</p>
+      <div class="reviewer"><div class="reviewer-avatar">ZK</div><div><strong>Zain Khan</strong><span>Tando Adam</span></div></div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p>"Ordered their Mutton Handi for a family gathering — everyone was in love. Will definitely order again!"</p>
+      <div class="reviewer"><div class="reviewer-avatar">RA</div><div><strong>Raza Ali</strong><span>Sanghar</span></div></div>
+    </div>
+  </div>
+  <div class="carousel-dots" id="carouselDots"></div>
+</section>
+
+<!-- ===== CONTACT SECTION ===== -->
+<section id="contact" class="contact-section">
+  <div class="section-header">
+    <p class="section-tag">Find Us</p>
+    <h2 class="section-title">Visit or Call Us</h2>
+  </div>
+  <div class="contact-grid">
+    <div class="contact-info">
+      <div class="contact-card">
+        <i class="fas fa-map-marker-alt"></i>
+        <div>
+          <strong>Address</strong>
+          <p>Tando Adam - Sanghar Road, Tando Adam, Sindh, Pakistan</p>
+        </div>
+      </div>
+      <div class="contact-card">
+        <i class="fas fa-phone"></i>
+        <div>
+          <strong>Phone (PTCL)</strong>
+          <p>0235-541060 | 0235-542361</p>
+        </div>
+      </div>
+      <div class="contact-card">
+        <i class="fas fa-mobile-alt"></i>
+        <div>
+          <strong>Mobile</strong>
+          <p>0332-4187360 | 0319-7833360 | 0305-8368360</p>
+        </div>
+      </div>
+      <div class="contact-card">
+        <i class="fas fa-clock"></i>
+        <div>
+          <strong>Hours</strong>
+          <p>Daily: 12:00 PM – 1:00 AM</p>
+        </div>
+      </div>
+      <div class="contact-socials">
+        <a href="https://wa.me/923324187360" class="social-btn whatsapp-btn" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        <a href="https://maps.app.goo.gl/iECvdpyygA3gvBbB6" class="social-btn maps-btn" target="_blank"><i class="fas fa-map"></i> Google Maps</a>
+      </div>
+    </div>
+    <div class="map-embed">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3568.36!2d68.6612!3d25.7718!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x394961795b3435e5%3A0x7677d08304858173!2sMIRCHI%20360!5e0!3m2!1sen!2spk!4v1"
+        width="100%" height="100%" style="border:0;" allowfullscreen loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade" title="Mirchi 360 Location">
+      </iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ADMIN PANEL ===== -->
+<section id="admin" class="admin-section">
+  <div class="section-header">
+    <p class="section-tag">Management</p>
+    <h2 class="section-title">Admin Panel</h2>
+  </div>
+  <div class="admin-login-panel" id="adminLogin">
+    <div class="login-card">
+      <div class="login-icon"><i class="fas fa-lock"></i></div>
+      <h3>Admin Access</h3>
+      <p>Enter your credentials to manage menu items and prices</p>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="adminUser" placeholder="admin" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="adminPass" placeholder="••••••••" />
+      </div>
+      <button class="btn-primary full-w" onclick="adminLogin()"><i class="fas fa-sign-in-alt"></i> Login</button>
+      <p class="login-hint">Default: admin / mirchi360</p>
+    </div>
+  </div>
+
+  <div class="admin-dashboard" id="adminDash" style="display:none">
+    <div class="admin-toolbar">
+      <h3>Menu Management</h3>
+      <div class="admin-actions">
+        <button class="btn-primary" onclick="openAddModal()"><i class="fas fa-plus"></i> Add Item</button>
+        <button class="btn-secondary" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </div>
+    <div class="admin-search">
+      <input type="text" id="adminSearch" placeholder="Search menu items..." oninput="renderAdminTable()" />
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr><th>Name</th><th>Category</th><th>Price</th><th>Emoji</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="adminTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ADD/EDIT MODAL ===== -->
+<div class="modal-overlay" id="itemModal" style="display:none">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="modalTitle">Add Menu Item</h3>
+      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="form-group">
+      <label>Item Name *</label>
+      <input type="text" id="modalName" placeholder="e.g. Chicken Karahi" />
+    </div>
+    <div class="form-group">
+      <label>Category *</label>
+      <select id="modalCat">
+        <option value="desi">Desi Items</option>
+        <option value="karahi">Karahi</option>
+        <option value="bbq">BBQ</option>
+        <option value="fastfood">Fast Food</option>
+        <option value="chinese">Chinese</option>
+        <option value="pizza">Pizza</option>
+        <option value="vegetable">Vegetable</option>
+        <option value="rolls">Rolls</option>
+        <option value="fish">Fish</option>
+        <option value="salads">Salads</option>
+        <option value="paratha">Paratha & Naan</option>
+        <option value="juices">Juices</option>
+        <option value="desserts">Desserts</option>
+        <option value="beverages">Beverages</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Price (Rs.) *</label>
+      <input type="text" id="modalPrice" placeholder="e.g. 1200 or 1200-2400" />
+    </div>
+    <div class="form-group">
+      <label>Emoji / Icon</label>
+      <input type="text" id="modalEmoji" placeholder="🍗" maxlength="5" />
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <input type="text" id="modalDesc" placeholder="Optional short description" />
+    </div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveItem()"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">MIRCHI <span>360°</span></div>
+      <p>Three Sixty Degrees of Authentic Pakistani Flavour. Located in Tando Adam, Sanghar, Pakistan.</p>
+      <div class="footer-social">
+        <a href="https://wa.me/923324187360" target="_blank"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://maps.app.goo.gl/iECvdpyygA3gvBbB6" target="_blank"><i class="fas fa-map-marker-alt"></i></a>
+        <a href="tel:+923324187360"><i class="fas fa-phone"></i></a>
+      </div>
+    </div>
+    <div class="footer-links">
+      <h4>Quick Links</h4>
+      <a href="#home">Home</a>
+      <a href="#menu">Menu</a>
+      <a href="#order">Order Online</a>
+      <a href="#about">About Us</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="footer-links">
+      <h4>Our Specialties</h4>
+      <a href="#menu">Karahi & Handi</a>
+      <a href="#menu">BBQ Platters</a>
+      <a href="#menu">Desi Biryani</a>
+      <a href="#menu">Fresh Juices</a>
+      <a href="#menu">Gourmet Pizza</a>
+    </div>
+    <div class="footer-contact">
+      <h4>Contact Us</h4>
+      <p><i class="fas fa-phone"></i> 0332-4187360</p>
+      <p><i class="fas fa-phone"></i> 0319-7833360</p>
+      <p><i class="fas fa-phone"></i> 0305-8368360</p>
+      <p><i class="fas fa-map-marker-alt"></i> Sanghar Branch, Tando Adam</p>
+      <p><i class="fas fa-clock"></i> 12:00 PM – 1:00 AM Daily</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 Mirchi 360 – Three Sixty Degrees. All rights reserved. | Sanghar Branch</p>
+  </div>
+</footer>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
 
