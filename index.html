@@ -1,319 +1,652 @@
 <!DOCTYPE html>
-<html lang="ur" dir="ltr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mirchi 360° – Three Sixty Degrees of Flavour</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MIRCHI 360° — Three Sixty Degrees of Flavour</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Josefin+Sans:wght@100;200;300;400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- PARTICLE BACKGROUND -->
-  <canvas id="particle-canvas"></canvas>
+<!-- ===== PARTICLE CANVAS ===== -->
+<canvas id="particleCanvas"></canvas>
 
-  <!-- FLOATING SPICES ANIMATION -->
-  <div class="floating-spices" id="floatingSpices"></div>
+<!-- ===== CURSOR ===== -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
 
-  <!-- NAVBAR -->
-  <nav class="navbar" id="navbar">
-    <div class="nav-logo">
-      <img src="logo.png" alt="Mirchi 360" onerror="this.style.display='none'" />
-      <span class="logo-text">MIRCHI <span class="red">360°</span></span>
+<!-- ===== LOADER ===== -->
+<div class="loader" id="loader">
+  <div class="loader-inner">
+    <div class="loader-logo">MIRCHI</div>
+    <div class="loader-sub">360°</div>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+  </div>
+</div>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" id="navbar">
+  <div class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <img src="https://shahzaibzai62-sudo.github.io/Mirchi---360-/logo.png" alt="Mirchi 360 Logo" class="nav-logo-img" onerror="this.style.display='none'"/>
+    <span class="nav-logo-text">MIRCHI</span>
+    <span class="nav-logo-degree">360°</span>
+  </div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#home" class="nav-link active">Home</a></li>
+    <li><a href="#menu" class="nav-link">Menu</a></li>
+    <li><a href="#booking" class="nav-link">Reserve</a></li>
+    <li><a href="#order" class="nav-link">Order</a></li>
+    <li><a href="#about" class="nav-link">About</a></li>
+    <li><a href="#contact" class="nav-link">Contact</a></li>
+    <li><a href="#admin" class="nav-link nav-admin-btn">Admin</a></li>
+  </ul>
+  <div class="nav-wa">
+    <a href="https://wa.me/923324187360" target="_blank" class="wa-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Order Now
+    </a>
+  </div>
+  <button class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="home">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="hero-content">
+    <div class="hero-logo-wrap">
+      <img src="https://shahzaibzai62-sudo.github.io/Mirchi---360-/logo.png" alt="Mirchi 360" class="hero-logo" onerror="this.style.display='none'"/>
     </div>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="#home">Home</a></li>
-      <li><a href="#menu">Menu</a></li>
-      <li><a href="#order">Order</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-    <div class="nav-actions">
-      <button class="cart-btn" onclick="toggleCart()">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="cart-count" id="cartCount">0</span>
-      </button>
-      <button class="ai-toggle-btn" onclick="toggleAI()">
-        <i class="fas fa-robot"></i> AI مددگار
-      </button>
-      <button class="hamburger" id="hamburger" onclick="toggleMobileNav()">
-        <span></span><span></span><span></span>
-      </button>
+    <div class="hero-badge">Est. 2020 · Tando Adam, Sindh</div>
+    <h1 class="hero-title">
+      <span class="hero-title-line hero-title-line-1">THREE SIXTY</span>
+      <span class="hero-title-degree">360°</span>
+      <span class="hero-title-line hero-title-line-2">OF FLAVOUR</span>
+    </h1>
+    <p class="hero-sub">Pakistan's finest dining experience — from sizzling Karahis to smoky BBQ, crafted with passion in every bite.</p>
+    <div class="hero-btns">
+      <a href="#booking" class="btn-primary">Reserve a Table</a>
+      <a href="#menu" class="btn-ghost">Explore Menu</a>
     </div>
-  </nav>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="hero-stat-num" data-target="150">0</span><span class="hero-stat-plus">+</span><div class="hero-stat-label">Menu Items</div></div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat"><span class="hero-stat-num" data-target="5000">0</span><span class="hero-stat-plus">+</span><div class="hero-stat-label">Happy Guests</div></div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat"><span class="hero-stat-num" data-target="4">0</span><span class="hero-stat-plus">.9★</span><div class="hero-stat-label">Rating</div></div>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="hero-scroll-line"></div>
+  </div>
+  <!-- Floating dish ticker -->
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <span>🌶️ Chicken Karahi</span><span>🔥 Mutton BBQ</span><span>🍕 Gourmet Pizza</span><span>🍗 Desi Biryani</span><span>🥤 Fresh Juices</span><span>🍜 Chinese Specials</span><span>🌯 Rolls & Wraps</span><span>🍦 Ice Cream & Desserts</span>
+      <span>🌶️ Chicken Karahi</span><span>🔥 Mutton BBQ</span><span>🍕 Gourmet Pizza</span><span>🍗 Desi Biryani</span><span>🥤 Fresh Juices</span><span>🍜 Chinese Specials</span><span>🌯 Rolls & Wraps</span><span>🍦 Ice Cream & Desserts</span>
+    </div>
+  </div>
+</section>
 
-  <!-- HERO SECTION -->
-  <section class="hero" id="home">
-    <div class="hero-bg-overlay"></div>
-    <div class="fire-effect"></div>
-    <div class="hero-content">
-      <div class="hero-badge">🌶️ Sanghar ka Behtareen Restaurant</div>
-      <h1 class="hero-title">
-        <span class="title-line">MIRCHI</span>
-        <span class="title-line big red">360°</span>
-      </h1>
-      <p class="hero-tagline">Three Sixty Degrees of Flavour</p>
-      <p class="hero-sub">Karahi • BBQ • Pizza • Desi Handi • Chinese • Rolls</p>
-      <div class="hero-btns">
-        <a href="#menu" class="btn-primary">Menu Dekhein 🍽️</a>
-        <a href="#order" class="btn-secondary">Order Karein 🛵</a>
+<!-- ===== MENU ===== -->
+<section class="section menu-section" id="menu">
+  <div class="section-header">
+    <div class="section-label">Our Menu</div>
+    <h2 class="section-title">A Feast for Every Craving</h2>
+    <p class="section-sub">Authentic flavours crafted with passion — explore our full menu</p>
+  </div>
+  <div class="menu-categories" id="menuCategories">
+    <button class="cat-btn active" data-cat="all">All</button>
+    <button class="cat-btn" data-cat="Desi Items">Desi</button>
+    <button class="cat-btn" data-cat="Karahi">Karahi</button>
+    <button class="cat-btn" data-cat="BBQ">BBQ</button>
+    <button class="cat-btn" data-cat="Appetizers">Appetizers</button>
+    <button class="cat-btn" data-cat="Fast Food">Fast Food</button>
+    <button class="cat-btn" data-cat="Chinese">Chinese</button>
+    <button class="cat-btn" data-cat="Pizza">Pizza</button>
+    <button class="cat-btn" data-cat="Fish">Fish</button>
+    <button class="cat-btn" data-cat="Vegetable">Vegetable</button>
+    <button class="cat-btn" data-cat="Rolls">Rolls</button>
+    <button class="cat-btn" data-cat="Salads">Salads</button>
+    <button class="cat-btn" data-cat="Paratha & Naan">Breads</button>
+    <button class="cat-btn" data-cat="Juices">Juices</button>
+    <button class="cat-btn" data-cat="Desserts">Desserts</button>
+    <button class="cat-btn" data-cat="Beverages">Drinks</button>
+  </div>
+  <div class="menu-grid" id="menuGrid"></div>
+</section>
+
+<!-- ===== TABLE BOOKING ===== -->
+<section class="section booking-section" id="booking">
+  <div class="booking-bg-orb"></div>
+  <div class="section-header">
+    <div class="section-label">Reservations</div>
+    <h2 class="section-title">Reserve Your Table</h2>
+    <p class="section-sub">Book your exclusive dining experience at Mirchi 360°</p>
+  </div>
+  <div class="booking-container">
+    <div class="booking-info">
+      <div class="booking-info-item">
+        <div class="booking-info-icon">🕐</div>
+        <div>
+          <div class="booking-info-title">Opening Hours</div>
+          <div class="booking-info-text">Daily: 12:00 PM – 1:00 AM</div>
+        </div>
       </div>
-      <div class="hero-stats">
-        <div class="stat"><span class="stat-num">200+</span><span>Menu Items</span></div>
-        <div class="stat"><span class="stat-num">5★</span><span>Rating</span></div>
-        <div class="stat"><span class="stat-num">2020</span><span>Se Khadam</span></div>
-      </div>
-    </div>
-    <div class="scroll-indicator">
-      <div class="scroll-dot"></div>
-    </div>
-  </section>
-
-  <!-- MENU SECTION -->
-  <section class="menu-section" id="menu">
-    <div class="section-header">
-      <h2>ہمارا <span class="red">Menu</span></h2>
-      <p>Har Zaiqa, Har Budget ke Liye</p>
-    </div>
-
-    <!-- Category Filter -->
-    <div class="category-filter" id="categoryFilter">
-      <button class="cat-btn active" data-cat="all">Sab</button>
-      <button class="cat-btn" data-cat="desi">Desi Items</button>
-      <button class="cat-btn" data-cat="karahi">Karahi</button>
-      <button class="cat-btn" data-cat="bbq">BBQ</button>
-      <button class="cat-btn" data-cat="fastfood">Fast Food</button>
-      <button class="cat-btn" data-cat="chinese">Chinese</button>
-      <button class="cat-btn" data-cat="pizza">Pizza</button>
-      <button class="cat-btn" data-cat="vegetable">Vegetable</button>
-      <button class="cat-btn" data-cat="rolls">Rolls</button>
-      <button class="cat-btn" data-cat="fish">Fish</button>
-      <button class="cat-btn" data-cat="salads">Salads</button>
-      <button class="cat-btn" data-cat="paratha">Paratha & Naan</button>
-      <button class="cat-btn" data-cat="juices">Juices</button>
-      <button class="cat-btn" data-cat="desserts">Desserts</button>
-      <button class="cat-btn" data-cat="beverages">Beverages</button>
-    </div>
-
-    <!-- Menu Grid -->
-    <div class="menu-grid" id="menuGrid"></div>
-  </section>
-
-  <!-- ORDER SECTION -->
-  <section class="order-section" id="order">
-    <div class="section-header">
-      <h2>Online <span class="red">Order</span></h2>
-      <p>Ghar Baithe Mangwaein — Garam Garam Delivery</p>
-    </div>
-    <div class="order-container">
-      <div class="cart-panel" id="cartPanel">
-        <h3>🛒 Aapka Order</h3>
-        <div class="cart-items" id="cartItems">
-          <p class="empty-cart">Cart khali hai — menu se items add karein</p>
-        </div>
-        <div class="cart-total">
-          <div class="total-row"><span>Sub Total</span><span id="subTotal">Rs. 0</span></div>
-          <div class="total-row"><span>Delivery</span><span>Rs. 50</span></div>
-          <div class="total-row grand"><span>Total</span><span id="grandTotal">Rs. 50</span></div>
+      <div class="booking-info-item">
+        <div class="booking-info-icon">📍</div>
+        <div>
+          <div class="booking-info-title">Location</div>
+          <div class="booking-info-text">Tando Adam-Sanghar Road, Sindh</div>
         </div>
       </div>
-      <div class="order-form">
-        <h3>📋 Delivery Details</h3>
-        <div class="form-group">
-          <label>Naam *</label>
-          <input type="text" id="custName" placeholder="Aapka Naam" />
+      <div class="booking-info-item">
+        <div class="booking-info-icon">📞</div>
+        <div>
+          <div class="booking-info-title">Call for Reservation</div>
+          <div class="booking-info-text">0332-4187360 | 0319-7833360</div>
+        </div>
+      </div>
+      <div class="table-types">
+        <div class="table-type-card" data-type="Standard">
+          <div class="table-type-icon">🪑</div>
+          <div class="table-type-name">Standard</div>
+          <div class="table-type-desc">2-4 Guests</div>
+        </div>
+        <div class="table-type-card" data-type="Family">
+          <div class="table-type-icon">👨‍👩‍👧‍👦</div>
+          <div class="table-type-name">Family</div>
+          <div class="table-type-desc">4-8 Guests</div>
+        </div>
+        <div class="table-type-card" data-type="VIP">
+          <div class="table-type-icon">👑</div>
+          <div class="table-type-name">VIP Suite</div>
+          <div class="table-type-desc">Private Room</div>
+        </div>
+        <div class="table-type-card" data-type="Event">
+          <div class="table-type-icon">🎉</div>
+          <div class="table-type-name">Event Hall</div>
+          <div class="table-type-desc">20+ Guests</div>
+        </div>
+      </div>
+    </div>
+    <div class="booking-form-wrap">
+      <div class="booking-form" id="bookingForm">
+        <h3 class="booking-form-title">Table Reservation</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="bookName" placeholder="Your name" />
+          </div>
+          <div class="form-group">
+            <label>Phone *</label>
+            <input type="tel" id="bookPhone" placeholder="03XX-XXXXXXX" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date" id="bookDate" />
+          </div>
+          <div class="form-group">
+            <label>Time *</label>
+            <select id="bookTime">
+              <option value="">Select time</option>
+              <option>12:00 PM</option><option>12:30 PM</option>
+              <option>1:00 PM</option><option>1:30 PM</option>
+              <option>2:00 PM</option><option>2:30 PM</option>
+              <option>3:00 PM</option><option>3:30 PM</option>
+              <option>4:00 PM</option><option>5:00 PM</option>
+              <option>6:00 PM</option><option>7:00 PM</option>
+              <option>8:00 PM</option><option>8:30 PM</option>
+              <option>9:00 PM</option><option>9:30 PM</option>
+              <option>10:00 PM</option><option>10:30 PM</option>
+              <option>11:00 PM</option><option>11:30 PM</option>
+              <option>12:00 AM</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Guests *</label>
+            <input type="number" id="bookGuests" placeholder="Number of guests" min="1" max="100"/>
+          </div>
+          <div class="form-group">
+            <label>Table Type</label>
+            <input type="text" id="bookTableType" placeholder="Standard / Family / VIP" readonly/>
+          </div>
         </div>
         <div class="form-group">
-          <label>Phone *</label>
-          <input type="tel" id="custPhone" placeholder="03XX-XXXXXXX" />
+          <label>Special Requests</label>
+          <textarea id="bookNotes" placeholder="Birthday decoration, dietary needs, etc." rows="3"></textarea>
         </div>
-        <div class="form-group">
-          <label>Address *</label>
-          <textarea id="custAddress" placeholder="Pura Address likhein"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Special Instructions</label>
-          <textarea id="custNote" placeholder="Koi khaas baat..."></textarea>
-        </div>
-        <div class="payment-methods">
-          <h4>Payment Method</h4>
-          <label><input type="radio" name="payment" value="COD" checked /> Cash on Delivery</label>
-          <label><input type="radio" name="payment" value="EasyPaisa" /> EasyPaisa</label>
-          <label><input type="radio" name="payment" value="JazzCash" /> JazzCash</label>
-        </div>
-        <button class="btn-whatsapp" onclick="placeOrder()">
-          <i class="fab fa-whatsapp"></i> WhatsApp Se Order Karein
+        <button class="btn-primary btn-full" onclick="submitBooking()">
+          Confirm Reservation via WhatsApp
         </button>
+        <div class="booking-note">Reservation confirmed via WhatsApp within minutes</div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ABOUT SECTION -->
-  <section class="about-section" id="about">
+<!-- ===== ORDER ONLINE ===== -->
+<section class="section order-section" id="order">
+  <div class="section-header">
+    <div class="section-label">Delivery</div>
+    <h2 class="section-title">Order Fresh, Delivered Hot 🔥</h2>
+    <p class="section-sub">Place your order and we'll deliver right to your doorstep</p>
+  </div>
+  <div class="order-container">
+    <div class="order-menu-panel">
+      <div class="order-search-wrap">
+        <input type="text" id="orderSearch" placeholder="Search dishes..." class="order-search"/>
+      </div>
+      <div class="order-cats" id="orderCats"></div>
+      <div class="order-items-grid" id="orderItemsGrid"></div>
+    </div>
+    <div class="order-cart-panel">
+      <div class="cart-header">
+        <h3>Your Order</h3>
+        <span class="cart-count" id="cartCount">0</span>
+      </div>
+      <div class="cart-items" id="cartItems">
+        <div class="cart-empty">
+          <div class="cart-empty-icon">🛒</div>
+          <div>Add items from the menu</div>
+        </div>
+      </div>
+      <div class="cart-totals" id="cartTotals" style="display:none">
+        <div class="cart-total-row"><span>Subtotal</span><span id="cartSubtotal">Rs. 0</span></div>
+        <div class="cart-total-row"><span>Delivery</span><span>Rs. 50</span></div>
+        <div class="cart-total-row cart-total-final"><span>Total</span><span id="cartTotal">Rs. 50</span></div>
+      </div>
+      <div class="delivery-form" id="deliveryForm">
+        <h4>Delivery Details</h4>
+        <input type="text" id="delName" placeholder="Full Name *" class="del-input"/>
+        <input type="tel" id="delPhone" placeholder="Phone Number *" class="del-input"/>
+        <input type="text" id="delAddress" placeholder="Delivery Address *" class="del-input"/>
+        <textarea id="delNotes" placeholder="Special Instructions" rows="2" class="del-input"></textarea>
+        <h4 style="margin-top:1rem">Payment Method</h4>
+        <div class="payment-methods">
+          <label class="pay-opt"><input type="radio" name="payment" value="EasyPaisa" checked/><span>EasyPaisa</span></label>
+          <label class="pay-opt"><input type="radio" name="payment" value="JazzCash"/><span>JazzCash</span></label>
+          <label class="pay-opt"><input type="radio" name="payment" value="Cash on Delivery"/><span>Cash on Delivery</span></label>
+          <label class="pay-opt"><input type="radio" name="payment" value="Bank Transfer"/><span>Bank Transfer</span></label>
+        </div>
+        <button class="btn-primary btn-full" onclick="placeOrder()" id="placeOrderBtn" disabled>Place Order via WhatsApp</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section class="section about-section" id="about">
+  <div class="about-decoration"></div>
+  <div class="about-container">
+    <div class="about-visual">
+      <div class="about-badge-ring">
+        <div class="about-badge-inner">
+          <div class="about-badge-text">MIRCHI</div>
+          <div class="about-badge-num">360°</div>
+          <div class="about-badge-sub">EST. 2020</div>
+        </div>
+      </div>
+      <div class="about-features-grid">
+        <div class="feat-card">
+          <div class="feat-icon">🔥</div>
+          <div class="feat-title">Fresh Daily</div>
+          <div class="feat-desc">Cooked to order every time</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">🚴</div>
+          <div class="feat-title">Home Delivery</div>
+          <div class="feat-desc">Fast across Tando Adam</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">⭐</div>
+          <div class="feat-title">5-Star Quality</div>
+          <div class="feat-desc">Premium ingredients</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">🕐</div>
+          <div class="feat-title">Open Daily</div>
+          <div class="feat-desc">12 PM to 1 AM</div>
+        </div>
+      </div>
+    </div>
     <div class="about-content">
-      <div class="about-text">
-        <h2>Hamara <span class="red">360°</span> Safar</h2>
-        <p>2020 mein Tando Adam, Sanghar mein shuru hua Mirchi 360 — aik restaurant jo Pakistani khane ke har zaiqa ko celebrate karta hai. Karahi se lekar pizza tak, BBQ se lekar desi handi tak — hum 360° flavours pesh karte hain.</p>
-        <ul class="about-features">
-          <li><i class="fas fa-fire"></i> Roz Taza Pakaya Jata Hai</li>
-          <li><i class="fas fa-motorcycle"></i> Tando Adam & Sanghar mein Home Delivery</li>
-          <li><i class="fas fa-star"></i> Premium Masalajat, Asli Recipes</li>
-          <li><i class="fas fa-clock"></i> Roz Khula: Dopahar 12 baje se Raat 1 baje tak</li>
-        </ul>
-        <div class="table-status">
-          <h4>🪑 Table Status (Live)</h4>
-          <div class="tables-grid" id="tablesGrid"></div>
-          <p class="rush-info">⏰ <strong>Kam Bheed:</strong> Dopahar 12-2 baje | Raat 10-11 baje</p>
-          <p class="rush-info">🔥 <strong>Zyada Bheed:</strong> Sham 7-9 baje (pehle se booking karain)</p>
-        </div>
-      </div>
-      <div class="about-visual">
-        <div class="rotating-360">360°</div>
-        <div class="about-info-cards">
-          <div class="info-card"><span>📍</span>Tando Adam, Sanghar</div>
-          <div class="info-card"><span>📞</span>0332-4187360</div>
-          <div class="info-card"><span>🕐</span>12 PM – 1 AM</div>
-          <div class="info-card"><span>🛵</span>Home Delivery</div>
-        </div>
+      <div class="section-label">Our Story</div>
+      <h2 class="section-title">360° of Authentic Taste</h2>
+      <p class="about-text">Welcome to <strong>Mirchi 360</strong> — where every dish is crafted with love, tradition, and the finest spices. Located in the heart of <strong>Tando Adam, Sanghar</strong>, we bring you a full circle of culinary excellence.</p>
+      <p class="about-text">From sizzling Karahis to mouthwatering BBQ platters, crispy fast food to comforting Desi Handi — our menu spans the full 360 degrees of Pakistani cuisine and beyond.</p>
+      <div class="about-contacts">
+        <a href="tel:+923324187360" class="about-contact-btn">📞 0332-4187360</a>
+        <a href="tel:+923197833360" class="about-contact-btn">📞 0319-7833360</a>
+        <a href="https://wa.me/923324187360" target="_blank" class="about-contact-btn about-wa">💬 WhatsApp</a>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- CONTACT SECTION -->
-  <section class="contact-section" id="contact">
+  <!-- Reviews -->
+  <div class="reviews-section">
     <div class="section-header">
-      <h2>Hamse <span class="red">Milein</span></h2>
-      <p>Hum hamesha aapki khidmat ke liye taiyar hain</p>
+      <div class="section-label">Testimonials</div>
+      <h2 class="section-title">What Our Guests Say</h2>
     </div>
+    <div class="reviews-track-wrap">
+      <div class="reviews-track" id="reviewsTrack">
+        <div class="review-card"><div class="review-stars">★★★★★</div><div class="review-text">"Best Chicken Karahi in all of Sanghar! The flavours are absolutely incredible. We visit every weekend."</div><div class="review-author"><div class="review-avatar">AM</div><div><div class="review-name">Ahmed Mirza</div><div class="review-loc">Tando Adam</div></div></div></div>
+        <div class="review-card"><div class="review-stars">★★★★★</div><div class="review-text">"Mirchi 360's BBQ Platter is unmatched. The seekh kabab and tikka are perfectly marinated. Highly recommended!"</div><div class="review-author"><div class="review-avatar">SF</div><div><div class="review-name">Sara Fatima</div><div class="review-loc">Sanghar</div></div></div></div>
+        <div class="review-card"><div class="review-stars">★★★★★</div><div class="review-text">"The pizza is surprisingly amazing for a desi restaurant! And the lemon mint is so refreshing. Love this place."</div><div class="review-author"><div class="review-avatar">ZK</div><div><div class="review-name">Zain Khan</div><div class="review-loc">Tando Adam</div></div></div></div>
+        <div class="review-card"><div class="review-stars">★★★★★</div><div class="review-text">"Ordered their Mutton Handi for a family gathering — everyone was in love. Will definitely order again!"</div><div class="review-author"><div class="review-avatar">RA</div><div><div class="review-name">Raza Ali</div><div class="review-loc">Sanghar</div></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section class="section contact-section" id="contact">
+  <div class="section-header">
+    <div class="section-label">Find Us</div>
+    <h2 class="section-title">Visit or Call Us</h2>
+  </div>
+  <div class="contact-container">
     <div class="contact-cards">
       <div class="contact-card">
-        <i class="fas fa-phone"></i>
-        <h4>Call Karein</h4>
-        <p>0332-4187360</p>
-        <p>0319-7833360</p>
-        <p>0305-8368360</p>
-        <p>PTCL: 0235-541060</p>
+        <div class="contact-card-icon">📍</div>
+        <div class="contact-card-title">Address</div>
+        <div class="contact-card-text">Tando Adam - Sanghar Road,<br>Tando Adam, Sindh, Pakistan</div>
       </div>
       <div class="contact-card">
-        <i class="fab fa-whatsapp"></i>
-        <h4>WhatsApp</h4>
-        <p>Order & Inquiry ke liye</p>
-        <a href="https://wa.me/923324187360" target="_blank" class="btn-primary small">Chat Karein</a>
+        <div class="contact-card-icon">📞</div>
+        <div class="contact-card-title">Phone (PTCL)</div>
+        <div class="contact-card-text">0235-541060<br>0235-542361</div>
       </div>
       <div class="contact-card">
-        <i class="fas fa-map-marker-alt"></i>
-        <h4>Address</h4>
-        <p>Tando Adam – Sanghar Road</p>
-        <p>Tando Adam, Sindh</p>
-        <a href="https://maps.app.goo.gl/iECvdpyygA3gvBbB6" target="_blank" class="btn-primary small">Maps Mein Dekhein</a>
+        <div class="contact-card-icon">📱</div>
+        <div class="contact-card-title">Mobile</div>
+        <div class="contact-card-text">0332-4187360<br>0319-7833360<br>0305-8368360</div>
       </div>
       <div class="contact-card">
-        <i class="fas fa-clock"></i>
-        <h4>Aane Ka Waqt</h4>
-        <p>Roz Khula</p>
-        <p>Dopahar 12 baje – Raat 1 baje</p>
+        <div class="contact-card-icon">🕐</div>
+        <div class="contact-card-title">Hours</div>
+        <div class="contact-card-text">Daily: 12:00 PM – 1:00 AM</div>
       </div>
     </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-logo">
-        <span>MIRCHI <span class="red">360°</span></span>
-        <p>Three Sixty Degrees of Authentic Pakistani Flavour</p>
-      </div>
-      <div class="footer-links">
-        <h4>Quick Links</h4>
-        <a href="#home">Home</a>
-        <a href="#menu">Menu</a>
-        <a href="#order">Order Online</a>
-        <a href="#about">About</a>
-        <a href="#contact">Contact</a>
-      </div>
-      <div class="footer-contact">
-        <h4>Contact</h4>
-        <p>0332-4187360</p>
-        <p>0319-7833360</p>
-        <p>Tando Adam, Sanghar</p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2024 Mirchi 360° | Tando Adam, Sanghar | Sab Haqooq Mehfooz</p>
-    </div>
-  </footer>
-
-  <!-- CART SIDEBAR -->
-  <div class="cart-sidebar" id="cartSidebar">
-    <div class="cart-header">
-      <h3>🛒 Cart</h3>
-      <button onclick="toggleCart()"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="cart-sidebar-items" id="cartSidebarItems">
-      <p class="empty-cart">Cart khali hai</p>
-    </div>
-    <div class="cart-sidebar-total">
-      <div class="total-row"><span>Total</span><span id="sidebarTotal">Rs. 0</span></div>
-      <a href="#order" class="btn-primary" onclick="toggleCart()">Checkout Karein</a>
+    <div class="contact-map">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3568.36!2d68.6612!3d25.7718!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x394961795b3435e5%3A0x7677d08304858173!2sMIRCHI%20360!5e0!3m2!1sen!2spk!4v1" allowfullscreen="" loading="lazy"></iframe>
     </div>
   </div>
-  <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+</section>
 
-  <!-- AI ASSISTANT -->
-  <div class="ai-assistant" id="aiAssistant">
-    <div class="ai-header">
-      <div class="ai-avatar">
-        <div class="ai-pulse"></div>
-        <i class="fas fa-robot"></i>
+<!-- ===== ADMIN PANEL ===== -->
+<section class="section admin-section" id="admin">
+  <div class="section-header">
+    <div class="section-label">Management</div>
+    <h2 class="section-title">Admin Panel</h2>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="admin-login" id="adminLogin">
+    <div class="admin-login-card">
+      <div class="admin-login-logo">🌶️</div>
+      <h3>Secure Admin Access</h3>
+      <p>Enter your credentials to manage Mirchi 360</p>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="adminUser" placeholder="Username" autocomplete="off"/>
       </div>
-      <div class="ai-title">
-        <span>Mirchi AI مددگار</span>
-        <small>آن لائن • اردو میں بات کریں</small>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="adminPass" placeholder="Password" autocomplete="off"/>
       </div>
-      <button class="ai-close" onclick="toggleAI()"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="ai-messages" id="aiMessages">
-      <div class="ai-msg bot">
-        <div class="msg-bubble">السلام علیکم! 🌶️ میں Mirchi 360 کا AI مددگار ہوں۔ میں آپ کو کھانے کی سفارش، قیمتیں، ٹیبل، ڈیلیوری اور مزید سب کچھ بتا سکتا ہوں۔ آپ کیا جاننا چاہتے ہیں؟</div>
-      </div>
-    </div>
-    <div class="ai-quick-btns">
-      <button onclick="sendQuickMsg('سب سے مزیدار کھانا کون سا ہے؟')">مزیدار کھانا</button>
-      <button onclick="sendQuickMsg('بجٹ میں اچھا کھانا بتائیں')">بجٹ آپشن</button>
-      <button onclick="sendQuickMsg('کتنے ٹیبل خالی ہیں؟')">ٹیبل Status</button>
-      <button onclick="sendQuickMsg('ڈیلیوری کا وقت کتنا ہے؟')">ڈیلیوری</button>
-    </div>
-    <div class="ai-input-area">
-      <input type="text" id="aiInput" placeholder="اردو یا انگریزی میں لکھیں..." onkeypress="if(event.key==='Enter')sendAIMessage()" />
-      <button onclick="sendAIMessage()"><i class="fas fa-paper-plane"></i></button>
+      <div id="loginError" class="login-error" style="display:none">❌ Invalid credentials. Try again.</div>
+      <button class="btn-primary btn-full" onclick="adminLogin()">Login to Admin Panel</button>
+      <div class="admin-hint">Default: admin / mirchi360</div>
     </div>
   </div>
 
-  <!-- ITEM MODAL -->
-  <div class="item-modal" id="itemModal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-      <div class="modal-img-container">
-        <img id="modalImg" src="" alt="" />
-        <div class="modal-img-placeholder" id="modalImgPlaceholder"></div>
+  <!-- DASHBOARD -->
+  <div class="admin-dashboard" id="adminDashboard" style="display:none">
+    <div class="admin-top-bar">
+      <div class="admin-top-title">🌶️ Mirchi 360 — Admin Dashboard</div>
+      <button class="btn-ghost btn-sm" onclick="adminLogout()">Logout</button>
+    </div>
+
+    <div class="admin-stats">
+      <div class="admin-stat-card"><div class="admin-stat-num" id="statItems">0</div><div class="admin-stat-label">Menu Items</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" id="statCats">0</div><div class="admin-stat-label">Categories</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" id="statBookings">0</div><div class="admin-stat-label">Reservations</div></div>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="menuMgmt">Menu Management</button>
+      <button class="admin-tab" data-tab="bookingsMgmt">Table Bookings</button>
+      <button class="admin-tab" data-tab="settingsMgmt">Settings</button>
+    </div>
+
+    <!-- MENU MANAGEMENT TAB -->
+    <div class="admin-tab-content active" id="menuMgmt">
+      <div class="admin-panel-header">
+        <h3>Menu Items</h3>
+        <button class="btn-primary btn-sm" onclick="showAddItemModal()">+ Add New Item</button>
       </div>
-      <div class="modal-info">
-        <h3 id="modalName"></h3>
-        <p id="modalDesc"></p>
-        <div class="modal-size-selector" id="modalSizes"></div>
-        <div class="modal-price" id="modalPrice"></div>
-        <div class="modal-qty">
-          <button onclick="changeQty(-1)">−</button>
-          <span id="modalQty">1</span>
-          <button onclick="changeQty(1)">+</button>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="adminMenuTable">
+          <thead>
+            <tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="adminMenuBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BOOKINGS TAB -->
+    <div class="admin-tab-content" id="bookingsMgmt" style="display:none">
+      <div class="admin-panel-header">
+        <h3>Table Reservations</h3>
+        <button class="btn-ghost btn-sm" onclick="clearBookings()">Clear All</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="adminBookingsTable">
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Phone</th><th>Date</th><th>Time</th><th>Guests</th><th>Type</th><th>Notes</th></tr>
+          </thead>
+          <tbody id="adminBookingsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="admin-tab-content" id="settingsMgmt" style="display:none">
+      <div class="settings-grid">
+        <div class="settings-card">
+          <h4>Change Admin Password</h4>
+          <div class="form-group"><label>Current Password</label><input type="password" id="oldPass" class="admin-input"/></div>
+          <div class="form-group"><label>New Password</label><input type="password" id="newPass" class="admin-input"/></div>
+          <div class="form-group"><label>Confirm Password</label><input type="password" id="confirmPass" class="admin-input"/></div>
+          <button class="btn-primary btn-sm" onclick="changePassword()">Update Password</button>
+          <div id="passMsg" style="margin-top:0.5rem;font-size:0.85rem"></div>
         </div>
-        <button class="btn-primary" onclick="addToCartFromModal()">Cart Mein Daalein 🛒</button>
+        <div class="settings-card">
+          <h4>Restaurant Info</h4>
+          <div class="form-group"><label>WhatsApp Number</label><input type="text" id="settingWa" value="923324187360" class="admin-input"/></div>
+          <div class="form-group"><label>Delivery Charge (Rs.)</label><input type="number" id="settingDelivery" value="50" class="admin-input"/></div>
+          <button class="btn-primary btn-sm" onclick="saveSettings()">Save Settings</button>
+        </div>
       </div>
     </div>
   </div>
-  <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+</section>
 
-  <script src="app.js"></script>
+<!-- ===== ADD / EDIT ITEM MODAL ===== -->
+<div class="modal-overlay" id="itemModal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Add Menu Item</h3>
+      <button class="modal-close" onclick="closeItemModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Item Image</label>
+        <div class="image-upload-wrap" id="imageUploadWrap">
+          <input type="file" id="itemImageFile" accept="image/*" onchange="previewImage(this)" style="display:none"/>
+          <div class="image-preview" id="imagePreview">
+            <div class="image-preview-placeholder" onclick="document.getElementById('itemImageFile').click()">
+              <div style="font-size:2rem">📸</div>
+              <div>Click to Upload Image</div>
+              <div style="font-size:0.75rem;opacity:0.6">JPG, PNG, WebP supported</div>
+            </div>
+          </div>
+          <div class="image-or">or use emoji icon below</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Item Name *</label>
+          <input type="text" id="itemName" placeholder="e.g. Chicken Karahi" class="admin-input"/>
+        </div>
+        <div class="form-group">
+          <label>Category *</label>
+          <select id="itemCategory" class="admin-input">
+            <option value="">Select Category</option>
+            <option>Desi Items</option><option>Karahi</option><option>BBQ</option>
+            <option>Fast Food</option><option>Chinese</option><option>Pizza</option>
+            <option>Vegetable</option><option>Rolls</option><option>Fish</option>
+            <option>Salads</option><option>Paratha & Naan</option><option>Juices</option>
+            <option>Desserts</option><option>Beverages</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Price (Rs.) *</label>
+          <input type="number" id="itemPrice" placeholder="e.g. 450" class="admin-input"/>
+        </div>
+        <div class="form-group">
+          <label>Emoji / Icon</label>
+          <input type="text" id="itemEmoji" placeholder="🌶️" class="admin-input"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="itemDesc" placeholder="Short description..." rows="2" class="admin-input"></textarea>
+      </div>
+      <input type="hidden" id="editItemIndex" value="-1"/>
+      <input type="hidden" id="itemImageData" value=""/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeItemModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveItem()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== AI ASSISTANT ===== -->
+<div class="assistant-bubble" id="assistantBubble" onclick="toggleAssistant()">
+  <div class="assistant-bubble-inner">
+    <span class="assistant-bubble-icon">🤖</span>
+    <div class="assistant-bubble-pulse"></div>
+  </div>
+</div>
+<div class="assistant-panel" id="assistantPanel">
+  <div class="assistant-header">
+    <div class="assistant-header-info">
+      <div class="assistant-avatar">🌶️</div>
+      <div>
+        <div class="assistant-name">Mirchi Assistant</div>
+        <div class="assistant-status">● Online Now</div>
+      </div>
+    </div>
+    <button class="assistant-close" onclick="toggleAssistant()">✕</button>
+  </div>
+  <div class="assistant-messages" id="assistantMessages">
+    <div class="assistant-msg assistant-msg-bot">
+      <div class="msg-bubble">
+        Assalamu Alaikum! 👋 I'm the Mirchi 360° Assistant. I can help you with:<br><br>
+        🪑 <strong>Table Reservations</strong><br>
+        🍽️ <strong>Menu Information</strong><br>
+        📦 <strong>Order Placement</strong><br>
+        📍 <strong>Location & Hours</strong><br><br>
+        How can I assist you today?
+      </div>
+    </div>
+  </div>
+  <div class="assistant-quick-btns">
+    <button onclick="quickMsg('Book a table')">📅 Book Table</button>
+    <button onclick="quickMsg('What are your timings?')">🕐 Timings</button>
+    <button onclick="quickMsg('Show me the menu')">🍽️ Menu</button>
+    <button onclick="quickMsg('How to order online?')">📦 Order</button>
+  </div>
+  <div class="assistant-input-wrap">
+    <input type="text" id="assistantInput" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter') sendAssistantMsg()"/>
+    <button onclick="sendAssistantMsg()">➤</button>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo">MIRCHI <span>360°</span></div>
+      <p>Three Sixty Degrees of Authentic Pakistani Flavour. Located in Hyderabad road, Sanghar, Pakistan.</p>
+      <div class="footer-socials">
+        <a href="https://wa.me/923324187360" target="_blank">💬</a>
+        <a href="https://maps.app.goo.gl/iECvdpyygA3gvBbB6" target="_blank">📍</a>
+        <a href="tel:+923324187360">📞</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Quick Links</div>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#menu">Menu</a></li>
+        <li><a href="#booking">Reserve Table</a></li>
+        <li><a href="#order">Order Online</a></li>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Specialties</div>
+      <ul>
+        <li><a href="#menu">Karahi & Handi</a></li>
+        <li><a href="#menu">BBQ Platters</a></li>
+        <li><a href="#menu">Desi Biryani</a></li>
+        <li><a href="#menu">Fresh Juices</a></li>
+        <li><a href="#menu">Gourmet Pizza</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Contact Us</div>
+      <ul>
+        <li>📞 0332-4187360</li>
+        <li>📞 0319-7833360</li>
+        <li>📞 0305-8368360</li>
+        <li>📍 Sanghar Branch, Hyderabad road Sanghar</li>
+        <li>🕐 12:00 PM – 1:00 AM Daily</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Mirchi 360 – Three Sixty Degrees. All rights reserved.</span>
+    <span>Sanghar, Sindh, Pakistan</span>
+  </div>
+</footer>
+
+<!-- WhatsApp Float -->
+<a href="https://wa.me/923324187360" class="wa-float" target="_blank">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script src="app.js"></script>
 </body>
 </html>
