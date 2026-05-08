@@ -1,18 +1,28 @@
 /* =============================================
-   MIRCHI 360° — app.js
+   MIRCHI 360° — app.js  (Firebase Edition)
 ============================================= */
 'use strict';
 
-// ===== FORCE RESET OLD MENU DATA =====
-const MENU_VERSION = '3.0';
-if (localStorage.getItem('mirchi_menu_version') !== MENU_VERSION) {
-  localStorage.removeItem('mirchi_menu');
-  localStorage.setItem('mirchi_menu_version', MENU_VERSION);
-}
+// ===== FIREBASE INIT =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, setDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC7I-qQ7vFWOfsaAGYh9Q35RkV60j_hkQA",
+  authDomain: "mirchi-360-new.firebaseapp.com",
+  projectId: "mirchi-360-new",
+  storageBucket: "mirchi-360-new.firebasestorage.app",
+  messagingSenderId: "521251453403",
+  appId: "1:521251453403:web:0d697e7c1a14528f8a8ffe",
+  measurementId: "G-278YY0EV58"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
 
 // ===== STATE =====
-let menuItems = JSON.parse(localStorage.getItem('mirchi_menu')) || getDefaultMenu();
-let bookings = JSON.parse(localStorage.getItem('mirchi_bookings')) || [];
+let menuItems = [];
+let bookings = [];
 let cart = [];
 let currentMenuFilter = 'all';
 let currentOrderFilter = 'all';
@@ -21,6 +31,7 @@ let settings = JSON.parse(localStorage.getItem('mirchi_settings')) || { waNumber
 let adminCreds = JSON.parse(localStorage.getItem('mirchi_creds')) || { user: 'admin', pass: 'mirchi360' };
 let selectedTableType = '';
 let conversationHistory = [];
+let menuLoaded = false;
 
 // ===== DEFAULT MENU — Full menu from images with sizes & photos =====
 function getDefaultMenu() {
@@ -217,7 +228,7 @@ function getDefaultMenu() {
   ];
 }
 
-// ===== LOADER =====
+// ===== LOADER + FIREBASE DATA LOAD =====
 let _appReady = false;
 function _hideLoader() {
   if (_appReady) return;
@@ -229,11 +240,49 @@ function _hideLoader() {
     l.style.pointerEvents = 'none';
     setTimeout(() => { try { l.remove(); } catch(e){} }, 800);
   }
-  try { initAll(); } catch(e) { console.error(e); }
 }
-setTimeout(_hideLoader, 2500);
-window.addEventListener('load', () => setTimeout(_hideLoader, 800));
-document.addEventListener('DOMContentLoaded', () => setTimeout(_hideLoader, 3200));
+
+async function loadFirebaseData() {
+  try {
+    // Load menu from Firestore
+    const menuSnap = await getDocs(collection(db, 'menu'));
+    if (!menuSnap.empty) {
+      menuItems = menuSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } else {
+      // First time — upload default menu to Firestore
+      const defaults = getDefaultMenu();
+      for (const item of defaults) {
+        const docRef = await addDoc(collection(db, 'menu'), item);
+        menuItems.push({ id: docRef.id, ...item });
+      }
+    }
+
+    // Load bookings from Firestore
+    const bookSnap = await getDocs(query(collection(db, 'bookings'), orderBy('timestamp', 'desc')));
+    bookings = bookSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Real-time listener for bookings
+    onSnapshot(collection(db, 'bookings'), snap => {
+      bookings = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      renderAdminBookingsTable();
+      updateAdminStats();
+    });
+
+  } catch(e) {
+    console.error('Firebase load error:', e);
+    // Fallback to default menu if Firebase fails
+    if (menuItems.length === 0) menuItems = getDefaultMenu();
+  }
+
+  _hideLoader();
+  initAll();
+}
+
+// Start loading
+window.addEventListener('load', () => loadFirebaseData());
+document.addEventListener('DOMContentLoaded', () => { setTimeout(() => { if (!_appReady) loadFirebaseData(); }, 4000); });
+setTimeout(() => { if (!_appReady) { _hideLoader(); try { initAll(); } catch(e){} } }, 5000);
 
 function initAll() {
   initParticles();
@@ -445,7 +494,7 @@ function renderMenuGrid() {
       <div class="menu-card reveal">
         <div class="menu-card-img">
           ${item.image
-            ? `<img src="${item.image}" alt="${item.name}" loading="eager" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="menu-card-emoji" style="display:none">${item.emoji||'🍽️'}</div>`
+            ? `<img src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="menu-card-emoji" style="display:none">${item.emoji||'🍽️'}</div>`
             : `<div class="menu-card-emoji">${item.emoji||'🍽️'}</div>`}
           <div class="menu-card-badge">${item.category}</div>
         </div>
@@ -611,7 +660,7 @@ function initBookingDateMin() {
   if (dateInput) dateInput.min = today;
 }
 
-function submitBooking() {
+async function submitBooking() {
   const name = document.getElementById('bookName').value.trim();
   const phone = document.getElementById('bookPhone').value.trim();
   const date = document.getElementById('bookDate').value;
@@ -622,10 +671,14 @@ function submitBooking() {
 
   if (!name || !phone || !date || !time || !guests) { showToast('⚠️ Please fill all required fields'); return; }
 
-  // Save to local storage
-  const booking = { id: Date.now(), name, phone, date, time, guests, tableType, notes };
-  bookings.push(booking);
-  localStorage.setItem('mirchi_bookings', JSON.stringify(bookings));
+  // Save to Firestore
+  const booking = { name, phone, date, time, guests, tableType, notes, timestamp: Date.now() };
+  try {
+    const docRef = await addDoc(collection(db, 'bookings'), booking);
+    bookings.unshift({ id: docRef.id, ...booking });
+  } catch(e) {
+    console.error('Booking save error:', e);
+  }
 
   // WhatsApp message
   let msg = `🌶️ *MIRCHI 360° - TABLE RESERVATION*\n\n`;
@@ -748,10 +801,13 @@ function updateAdminStats() {
   if (statBookings) statBookings.textContent = bookings.length;
 }
 
-function clearBookings() {
+async function clearBookings() {
   if (confirm('Clear all reservations? This cannot be undone.')) {
+    try {
+      const snap = await getDocs(collection(db, 'bookings'));
+      for (const d of snap.docs) await deleteDoc(doc(db, 'bookings', d.id));
+    } catch(e) { console.error('Clear bookings error:', e); }
     bookings = [];
-    localStorage.setItem('mirchi_bookings', JSON.stringify(bookings));
     renderAdminBookingsTable();
     updateAdminStats();
     showToast('🗑️ All reservations cleared');
@@ -845,7 +901,7 @@ function closeItemModal() {
   document.getElementById('itemModal').style.display = 'none';
 }
 
-function saveItem() {
+async function saveItem() {
   const name     = document.getElementById('itemName').value.trim();
   const category = document.getElementById('itemCategory').value;
   const emoji    = document.getElementById('itemEmoji').value.trim() || '🍽️';
@@ -876,10 +932,23 @@ function saveItem() {
 
   const item = { name, category, emoji, desc, image, sizes };
 
-  if (editIdx === -1) menuItems.push(item);
-  else menuItems[editIdx] = item;
+  try {
+    if (editIdx === -1) {
+      // Add new item to Firestore
+      const docRef = await addDoc(collection(db, 'menu'), item);
+      menuItems.push({ id: docRef.id, ...item });
+    } else {
+      // Update existing item in Firestore
+      const existingId = menuItems[editIdx].id;
+      if (existingId) await setDoc(doc(db, 'menu', existingId), item);
+      menuItems[editIdx] = { id: existingId, ...item };
+    }
+  } catch(e) {
+    console.error('Save error:', e);
+    showToast('⚠️ Save failed, check connection');
+    return;
+  }
 
-  localStorage.setItem('mirchi_menu', JSON.stringify(menuItems));
   closeItemModal();
   renderAdminMenuTable();
   renderMenuGrid();
@@ -889,17 +958,19 @@ function saveItem() {
   showToast(`✅ "${name}" ${editIdx === -1 ? 'add' : 'update'} ho gaya`);
 }
 
-function deleteItem(idx) {
-  const name = menuItems[idx].name;
-  if (confirm(`Delete "${name}"?`)) {
+async function deleteItem(idx) {
+  const item = menuItems[idx];
+  if (confirm(`Delete "${item.name}"?`)) {
+    try {
+      if (item.id) await deleteDoc(doc(db, 'menu', item.id));
+    } catch(e) { console.error('Delete error:', e); }
     menuItems.splice(idx, 1);
-    localStorage.setItem('mirchi_menu', JSON.stringify(menuItems));
     renderAdminMenuTable();
     renderMenuGrid();
     renderOrderItems();
     renderOrderCategories();
     updateAdminStats();
-    showToast(`🗑️ "${name}" deleted`);
+    showToast(`🗑️ "${item.name}" deleted`);
   }
 }
 
