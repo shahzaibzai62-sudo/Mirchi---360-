@@ -529,14 +529,14 @@ function renderOrderCategories() {
   const cats = ['all', ...new Set(menuItems.map(i => i.category))];
   const container = document.getElementById('orderCats');
   container.innerHTML = cats.map(cat => `
-    <button class="cat-btn ${cat === currentOrderFilter ? 'active' : ''}" onclick="filterOrderItems('${cat}')">${cat === 'all' ? 'All' : cat}</button>
+    <button class="cat-btn ${cat === currentOrderFilter ? 'active' : ''}" onclick="filterOrderItems('${cat}', this)">${cat === 'all' ? 'All' : cat}</button>
   `).join('');
 }
 
-function filterOrderItems(cat) {
+function filterOrderItems(cat, el) {
   currentOrderFilter = cat;
   document.querySelectorAll('#orderCats .cat-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  if (el) el.classList.add('active');
   renderOrderItems();
 }
 
@@ -1053,7 +1053,7 @@ Restaurant Info:
 - Phone: 0332-4187360, 0319-7833360, 0305-8368360
 - PTCL: 0235-541060, 0235-542361
 - WhatsApp: 03324187360
-- Delivery: Available across Sanghar & Sanghar (Rs. 50 delivery charge)
+- Delivery: Available across Sanghar & surrounding areas (Rs. 50 delivery charge)
 - Payment: EasyPaisa, JazzCash, Cash on Delivery, Bank Transfer
 
 Menu Categories: Karahi, BBQ, Desi Items, Fast Food, Chinese, Pizza, Vegetable, Rolls, Fish, Salads, Paratha & Naan, Juices, Desserts, Beverages
@@ -1235,8 +1235,6 @@ window.saveSettings = saveSettings;
 window.toggleAssistant = toggleAssistant;
 window.sendAssistantMsg = sendAssistantMsg;
 window.quickMsg = quickMsg;
-window.setMenuFilter = setMenuFilter;
-window.setOrderFilter = setOrderFilter;
-window.addToCart = addToCart;
-window.updateQty = updateQty;
-window.removeFromCart = removeFromCart;
+window.addToCartWithSize = addToCartWithSize;
+window.changeCartQty = changeCartQty;
+window.filterOrderItems = filterOrderItems;
