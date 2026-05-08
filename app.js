@@ -1,9 +1,14 @@
 /* =============================================
    MIRCHI 360° — app.js
-   All functionality: Menu, Booking, Cart, Admin, AI Assistant
 ============================================= */
-
 'use strict';
+
+// ===== FORCE RESET OLD MENU DATA =====
+const MENU_VERSION = '3.0';
+if (localStorage.getItem('mirchi_menu_version') !== MENU_VERSION) {
+  localStorage.removeItem('mirchi_menu');
+  localStorage.setItem('mirchi_menu_version', MENU_VERSION);
+}
 
 // ===== STATE =====
 let menuItems = JSON.parse(localStorage.getItem('mirchi_menu')) || getDefaultMenu();
@@ -213,23 +218,22 @@ function getDefaultMenu() {
 }
 
 // ===== LOADER =====
-let appInitialized = false;
-function hideLoaderAndInit() {
-  if (appInitialized) return;
-  appInitialized = true;
-  const loader = document.getElementById('loader');
-  if (loader) {
-    loader.style.opacity = '0';
-    loader.style.visibility = 'hidden';
-    loader.style.pointerEvents = 'none';
-    setTimeout(() => loader.remove(), 700);
+let _appReady = false;
+function _hideLoader() {
+  if (_appReady) return;
+  _appReady = true;
+  const l = document.getElementById('loader');
+  if (l) {
+    l.style.opacity = '0';
+    l.style.visibility = 'hidden';
+    l.style.pointerEvents = 'none';
+    setTimeout(() => { try { l.remove(); } catch(e){} }, 800);
   }
   try { initAll(); } catch(e) { console.error(e); }
 }
-// Fire as early as possible
-setTimeout(hideLoaderAndInit, 2500);
-window.addEventListener('load', () => setTimeout(hideLoaderAndInit, 800));
-document.addEventListener('DOMContentLoaded', () => setTimeout(hideLoaderAndInit, 3000));
+setTimeout(_hideLoader, 2500);
+window.addEventListener('load', () => setTimeout(_hideLoader, 800));
+document.addEventListener('DOMContentLoaded', () => setTimeout(_hideLoader, 3200));
 
 function initAll() {
   initParticles();
@@ -441,7 +445,7 @@ function renderMenuGrid() {
       <div class="menu-card reveal">
         <div class="menu-card-img">
           ${item.image
-            ? `<img src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="menu-card-emoji" style="display:none">${item.emoji||'🍽️'}</div>`
+            ? `<img src="${item.image}" alt="${item.name}" loading="eager" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="menu-card-emoji" style="display:none">${item.emoji||'🍽️'}</div>`
             : `<div class="menu-card-emoji">${item.emoji||'🍽️'}</div>`}
           <div class="menu-card-badge">${item.category}</div>
         </div>
