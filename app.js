@@ -1,28 +1,13 @@
 /* =============================================
-   MIRCHI 360° — app.js  (Firebase Edition)
+   MIRCHI 360° — app.js
+   All functionality: Menu, Booking, Cart, Admin, AI Assistant
 ============================================= */
+
 'use strict';
 
-// ===== FIREBASE INIT =====
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, setDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyC7I-qQ7vFWOfsaAGYh9Q35RkV60j_hkQA",
-  authDomain: "mirchi-360-new.firebaseapp.com",
-  projectId: "mirchi-360-new",
-  storageBucket: "mirchi-360-new.firebasestorage.app",
-  messagingSenderId: "521251453403",
-  appId: "1:521251453403:web:0d697e7c1a14528f8a8ffe",
-  measurementId: "G-278YY0EV58"
-};
-
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
-
 // ===== STATE =====
-let menuItems = [];
-let bookings = [];
+let menuItems = JSON.parse(localStorage.getItem('mirchi_menu')) || getDefaultMenu();
+let bookings = JSON.parse(localStorage.getItem('mirchi_bookings')) || [];
 let cart = [];
 let currentMenuFilter = 'all';
 let currentOrderFilter = 'all';
@@ -31,7 +16,6 @@ let settings = JSON.parse(localStorage.getItem('mirchi_settings')) || { waNumber
 let adminCreds = JSON.parse(localStorage.getItem('mirchi_creds')) || { user: 'admin', pass: 'mirchi360' };
 let selectedTableType = '';
 let conversationHistory = [];
-let menuLoaded = false;
 
 // ===== DEFAULT MENU — Full menu from images with sizes & photos =====
 function getDefaultMenu() {
@@ -228,61 +212,13 @@ function getDefaultMenu() {
   ];
 }
 
-// ===== LOADER + FIREBASE DATA LOAD =====
-let _appReady = false;
-function _hideLoader() {
-  if (_appReady) return;
-  _appReady = true;
-  const l = document.getElementById('loader');
-  if (l) {
-    l.style.opacity = '0';
-    l.style.visibility = 'hidden';
-    l.style.pointerEvents = 'none';
-    setTimeout(() => { try { l.remove(); } catch(e){} }, 800);
-  }
-}
-
-async function loadFirebaseData() {
-  try {
-    // Load menu from Firestore
-    const menuSnap = await getDocs(collection(db, 'menu'));
-    if (!menuSnap.empty) {
-      menuItems = menuSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } else {
-      // First time — upload default menu to Firestore
-      const defaults = getDefaultMenu();
-      for (const item of defaults) {
-        const docRef = await addDoc(collection(db, 'menu'), item);
-        menuItems.push({ id: docRef.id, ...item });
-      }
-    }
-
-    // Load bookings from Firestore
-    const bookSnap = await getDocs(query(collection(db, 'bookings'), orderBy('timestamp', 'desc')));
-    bookings = bookSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-    // Real-time listener for bookings
-    onSnapshot(collection(db, 'bookings'), snap => {
-      bookings = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-      renderAdminBookingsTable();
-      updateAdminStats();
-    });
-
-  } catch(e) {
-    console.error('Firebase load error:', e);
-    // Fallback to default menu if Firebase fails
-    if (menuItems.length === 0) menuItems = getDefaultMenu();
-  }
-
-  _hideLoader();
-  initAll();
-}
-
-// Start loading
-window.addEventListener('load', () => loadFirebaseData());
-document.addEventListener('DOMContentLoaded', () => { setTimeout(() => { if (!_appReady) loadFirebaseData(); }, 4000); });
-setTimeout(() => { if (!_appReady) { _hideLoader(); try { initAll(); } catch(e){} } }, 5000);
+// ===== LOADER =====
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+    initAll();
+  }, 2200);
+});
 
 function initAll() {
   initParticles();
@@ -660,7 +596,7 @@ function initBookingDateMin() {
   if (dateInput) dateInput.min = today;
 }
 
-async function submitBooking() {
+function submitBooking() {
   const name = document.getElementById('bookName').value.trim();
   const phone = document.getElementById('bookPhone').value.trim();
   const date = document.getElementById('bookDate').value;
@@ -671,14 +607,10 @@ async function submitBooking() {
 
   if (!name || !phone || !date || !time || !guests) { showToast('⚠️ Please fill all required fields'); return; }
 
-  // Save to Firestore
-  const booking = { name, phone, date, time, guests, tableType, notes, timestamp: Date.now() };
-  try {
-    const docRef = await addDoc(collection(db, 'bookings'), booking);
-    bookings.unshift({ id: docRef.id, ...booking });
-  } catch(e) {
-    console.error('Booking save error:', e);
-  }
+  // Save to local storage
+  const booking = { id: Date.now(), name, phone, date, time, guests, tableType, notes };
+  bookings.push(booking);
+  localStorage.setItem('mirchi_bookings', JSON.stringify(bookings));
 
   // WhatsApp message
   let msg = `🌶️ *MIRCHI 360° - TABLE RESERVATION*\n\n`;
@@ -801,13 +733,10 @@ function updateAdminStats() {
   if (statBookings) statBookings.textContent = bookings.length;
 }
 
-async function clearBookings() {
+function clearBookings() {
   if (confirm('Clear all reservations? This cannot be undone.')) {
-    try {
-      const snap = await getDocs(collection(db, 'bookings'));
-      for (const d of snap.docs) await deleteDoc(doc(db, 'bookings', d.id));
-    } catch(e) { console.error('Clear bookings error:', e); }
     bookings = [];
+    localStorage.setItem('mirchi_bookings', JSON.stringify(bookings));
     renderAdminBookingsTable();
     updateAdminStats();
     showToast('🗑️ All reservations cleared');
@@ -901,7 +830,7 @@ function closeItemModal() {
   document.getElementById('itemModal').style.display = 'none';
 }
 
-async function saveItem() {
+function saveItem() {
   const name     = document.getElementById('itemName').value.trim();
   const category = document.getElementById('itemCategory').value;
   const emoji    = document.getElementById('itemEmoji').value.trim() || '🍽️';
@@ -932,23 +861,10 @@ async function saveItem() {
 
   const item = { name, category, emoji, desc, image, sizes };
 
-  try {
-    if (editIdx === -1) {
-      // Add new item to Firestore
-      const docRef = await addDoc(collection(db, 'menu'), item);
-      menuItems.push({ id: docRef.id, ...item });
-    } else {
-      // Update existing item in Firestore
-      const existingId = menuItems[editIdx].id;
-      if (existingId) await setDoc(doc(db, 'menu', existingId), item);
-      menuItems[editIdx] = { id: existingId, ...item };
-    }
-  } catch(e) {
-    console.error('Save error:', e);
-    showToast('⚠️ Save failed, check connection');
-    return;
-  }
+  if (editIdx === -1) menuItems.push(item);
+  else menuItems[editIdx] = item;
 
+  localStorage.setItem('mirchi_menu', JSON.stringify(menuItems));
   closeItemModal();
   renderAdminMenuTable();
   renderMenuGrid();
@@ -958,19 +874,17 @@ async function saveItem() {
   showToast(`✅ "${name}" ${editIdx === -1 ? 'add' : 'update'} ho gaya`);
 }
 
-async function deleteItem(idx) {
-  const item = menuItems[idx];
-  if (confirm(`Delete "${item.name}"?`)) {
-    try {
-      if (item.id) await deleteDoc(doc(db, 'menu', item.id));
-    } catch(e) { console.error('Delete error:', e); }
+function deleteItem(idx) {
+  const name = menuItems[idx].name;
+  if (confirm(`Delete "${name}"?`)) {
     menuItems.splice(idx, 1);
+    localStorage.setItem('mirchi_menu', JSON.stringify(menuItems));
     renderAdminMenuTable();
     renderMenuGrid();
     renderOrderItems();
     renderOrderCategories();
     updateAdminStats();
-    showToast(`🗑️ "${item.name}" deleted`);
+    showToast(`🗑️ "${name}" deleted`);
   }
 }
 
@@ -1051,17 +965,17 @@ async function sendAssistantMsg() {
   const typingId = appendTyping();
 
   try {
-    const systemPrompt = `You are the friendly AI assistant for MIRCHI 360°, a premium Pakistani restaurant in Tando Adam, Sanghar, Pakistan. 
+    const systemPrompt = `You are the friendly AI assistant for MIRCHI 360°, a premium Pakistani restaurant in Sanghar, Pakistan. 
 
 Restaurant Info:
 - Name: Mirchi 360°
 - Tagline: Three Sixty Degrees of Flavour
-- Location: Tando Adam-Sanghar Road, Tando Adam, Sindh, Pakistan
+- Location: Hyderabad Road, Sanghar, Sindh, Pakistan
 - Hours: Daily 12:00 PM – 1:00 AM
 - Phone: 0332-4187360, 0319-7833360, 0305-8368360
 - PTCL: 0235-541060, 0235-542361
 - WhatsApp: 03324187360
-- Delivery: Available across Tando Adam & Sanghar (Rs. 50 delivery charge)
+- Delivery: Available across Sanghar (Rs. 50 delivery charge)
 - Payment: EasyPaisa, JazzCash, Cash on Delivery, Bank Transfer
 
 Menu Categories: Karahi, BBQ, Desi Items, Fast Food, Chinese, Pizza, Vegetable, Rolls, Fish, Salads, Paratha & Naan, Juices, Desserts, Beverages
@@ -1120,7 +1034,7 @@ function getFallbackResponse(msg) {
     return `📦 <strong>Online Ordering</strong><br><br>Use our <a href="#order" style="color:var(--gold)">Order section</a> to place your order!<br><br>Delivery charge: Rs. 50<br>Payment: EasyPaisa, JazzCash, COD, Bank Transfer<br><br>Or WhatsApp us: <a href="https://wa.me/923324187360" style="color:var(--gold)">03324187360</a> 🚴`;
   }
   if (msg.includes('location') || msg.includes('address') || msg.includes('where')) {
-    return `📍 <strong>Our Location</strong><br><br>Tando Adam-Sanghar Road,<br>Tando Adam, Sindh, Pakistan<br><br><a href="https://maps.app.goo.gl/iECvdpyygA3gvBbB6" target="_blank" style="color:var(--gold)">Open in Google Maps</a> 🗺️`;
+    return `📍 <strong>Our Location</strong><br><br>Hyderabad Road,<br>Sanghar, Sindh, Pakistan<br><br><a href="https://maps.app.goo.gl/iECvdpyygA3gvBbB6" target="_blank" style="color:var(--gold)">Open in Google Maps</a> 🗺️`;
   }
   if (msg.includes('price') || msg.includes('cost') || msg.includes('rate')) {
     return `💰 <strong>Our Prices</strong><br><br>• Chicken Karahi: Rs. 650<br>• Mutton Karahi: Rs. 950<br>• BBQ Platter: Rs. 750<br>• Biryani: Rs. 350<br>• Pizza: Rs. 700<br>• Burger: Rs. 280<br><br><a href="#menu" style="color:var(--gold)">See full menu</a> 🌶️`;
@@ -1224,3 +1138,27 @@ document.getElementById('adminUser').addEventListener('keydown', e => {
 document.getElementById('assistantInput')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') sendAssistantMsg();
 });
+
+// ===== EXPOSE FUNCTIONS TO WINDOW (required for type="module") =====
+window.adminLogin = adminLogin;
+window.adminLogout = adminLogout;
+window.submitBooking = submitBooking;
+window.placeOrder = placeOrder;
+window.showAddItemModal = showAddItemModal;
+window.closeItemModal = closeItemModal;
+window.saveItem = saveItem;
+window.editItem = editItem;
+window.deleteItem = deleteItem;
+window.clearBookings = clearBookings;
+window.togglePriceFields = togglePriceFields;
+window.previewImage = previewImage;
+window.changePassword = changePassword;
+window.saveSettings = saveSettings;
+window.toggleAssistant = toggleAssistant;
+window.sendAssistantMsg = sendAssistantMsg;
+window.quickMsg = quickMsg;
+window.setMenuFilter = setMenuFilter;
+window.setOrderFilter = setOrderFilter;
+window.addToCart = addToCart;
+window.updateQty = updateQty;
+window.removeFromCart = removeFromCart;
