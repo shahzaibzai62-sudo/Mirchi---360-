@@ -1,25 +1,13 @@
 /* =============================================
-   MIRCHI 360° — app.js  (Firebase Edition)
+   MIRCHI 360° — app.js
+   All functionality: Menu, Booking, Cart, Admin, AI Assistant
 ============================================= */
+
 'use strict';
 
-// ===== FIREBASE =====
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, setDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const _fbApp = initializeApp({
-  apiKey: "AIzaSyC7I-qQ7vFWOfsaAGYh9Q35RkV60j_hkQA",
-  authDomain: "mirchi-360-new.firebaseapp.com",
-  projectId: "mirchi-360-new",
-  storageBucket: "mirchi-360-new.firebasestorage.app",
-  messagingSenderId: "521251453403",
-  appId: "1:521251453403:web:0d697e7c1a14528f8a8ffe"
-});
-const db = getFirestore(_fbApp);
-
 // ===== STATE =====
-let menuItems = [];
-let bookings = [];
+let menuItems = JSON.parse(localStorage.getItem('mirchi_menu')) || getDefaultMenu();
+let bookings = JSON.parse(localStorage.getItem('mirchi_bookings')) || [];
 let cart = [];
 let currentMenuFilter = 'all';
 let currentOrderFilter = 'all';
@@ -224,62 +212,13 @@ function getDefaultMenu() {
   ];
 }
 
-// ===== LOADER + FIREBASE =====
-let _appReady = false;
-
-function _hideLoader() {
-  if (_appReady) return;
-  _appReady = true;
-  const l = document.getElementById('loader');
-  if (l) { l.style.opacity='0'; l.style.visibility='hidden'; l.style.pointerEvents='none'; setTimeout(()=>{ try{l.remove();}catch(e){} }, 800); }
-}
-
-async function _loadAndInit() {
-  try {
-    // Load menu
-    const menuSnap = await getDocs(collection(db, 'menu'));
-    if (!menuSnap.empty) {
-      menuItems = menuSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } else {
-      // First run — seed Firestore with default menu
-      const defaults = getDefaultMenu();
-      for (const item of defaults) {
-        const ref = await addDoc(collection(db, 'menu'), item);
-        menuItems.push({ id: ref.id, ...item });
-      }
-    }
-
-    // Load bookings + real-time listener
-    const bSnap = await getDocs(query(collection(db, 'bookings'), orderBy('timestamp', 'desc')));
-    bookings = bSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-    onSnapshot(collection(db, 'bookings'), snap => {
-      bookings = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-        .sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
-      renderAdminBookingsTable();
-      updateAdminStats();
-    });
-
-    // Real-time menu listener — updates ALL devices instantly
-    onSnapshot(collection(db, 'menu'), snap => {
-      menuItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderMenuGrid();
-      renderOrderItems();
-      renderOrderCategories();
-      renderAdminMenuTable();
-      updateAdminStats();
-    });
-
-  } catch(e) {
-    console.error('Firebase error:', e);
-    if (menuItems.length === 0) menuItems = getDefaultMenu();
-  }
-  _hideLoader();
-  initAll();
-}
-
-window.addEventListener('load', () => _loadAndInit());
-setTimeout(() => { if (!_appReady) { _hideLoader(); try { initAll(); } catch(e){} } }, 5000);
+// ===== LOADER =====
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+    initAll();
+  }, 2200);
+});
 
 function initAll() {
   initParticles();
@@ -657,7 +596,7 @@ function initBookingDateMin() {
   if (dateInput) dateInput.min = today;
 }
 
-async function submitBooking() {
+function submitBooking() {
   const name = document.getElementById('bookName').value.trim();
   const phone = document.getElementById('bookPhone').value.trim();
   const date = document.getElementById('bookDate').value;
@@ -668,11 +607,10 @@ async function submitBooking() {
 
   if (!name || !phone || !date || !time || !guests) { showToast('⚠️ Please fill all required fields'); return; }
 
-  const booking = { name, phone, date, time, guests, tableType, notes, timestamp: Date.now() };
-  try {
-    const ref = await addDoc(collection(db, 'bookings'), booking);
-    bookings.unshift({ id: ref.id, ...booking });
-  } catch(e) { console.error('Booking error:', e); }
+  // Save to local storage
+  const booking = { id: Date.now(), name, phone, date, time, guests, tableType, notes };
+  bookings.push(booking);
+  localStorage.setItem('mirchi_bookings', JSON.stringify(bookings));
 
   // WhatsApp message
   let msg = `🌶️ *MIRCHI 360° - TABLE RESERVATION*\n\n`;
@@ -795,13 +733,10 @@ function updateAdminStats() {
   if (statBookings) statBookings.textContent = bookings.length;
 }
 
-async function clearBookings() {
+function clearBookings() {
   if (confirm('Clear all reservations? This cannot be undone.')) {
-    try {
-      const snap = await getDocs(collection(db, 'bookings'));
-      for (const d of snap.docs) await deleteDoc(doc(db, 'bookings', d.id));
-    } catch(e) { console.error(e); }
     bookings = [];
+    localStorage.setItem('mirchi_bookings', JSON.stringify(bookings));
     renderAdminBookingsTable();
     updateAdminStats();
     showToast('🗑️ All reservations cleared');
@@ -895,7 +830,7 @@ function closeItemModal() {
   document.getElementById('itemModal').style.display = 'none';
 }
 
-async function saveItem() {
+function saveItem() {
   const name     = document.getElementById('itemName').value.trim();
   const category = document.getElementById('itemCategory').value;
   const emoji    = document.getElementById('itemEmoji').value.trim() || '🍽️';
@@ -926,21 +861,10 @@ async function saveItem() {
 
   const item = { name, category, emoji, desc, image, sizes };
 
-  try {
-    if (editIdx === -1) {
-      const ref = await addDoc(collection(db, 'menu'), item);
-      menuItems.push({ id: ref.id, ...item });
-    } else {
-      const existingId = menuItems[editIdx].id;
-      await setDoc(doc(db, 'menu', existingId), item);
-      menuItems[editIdx] = { id: existingId, ...item };
-    }
-  } catch(e) {
-    console.error('Save error:', e);
-    showToast('⚠️ Save failed — check internet');
-    return;
-  }
+  if (editIdx === -1) menuItems.push(item);
+  else menuItems[editIdx] = item;
 
+  localStorage.setItem('mirchi_menu', JSON.stringify(menuItems));
   closeItemModal();
   renderAdminMenuTable();
   renderMenuGrid();
@@ -950,19 +874,17 @@ async function saveItem() {
   showToast(`✅ "${name}" ${editIdx === -1 ? 'add' : 'update'} ho gaya`);
 }
 
-async function deleteItem(idx) {
-  const item = menuItems[idx];
-  if (confirm(`Delete "${item.name}"?`)) {
-    try {
-      if (item.id) await deleteDoc(doc(db, 'menu', item.id));
-    } catch(e) { console.error('Delete error:', e); }
+function deleteItem(idx) {
+  const name = menuItems[idx].name;
+  if (confirm(`Delete "${name}"?`)) {
     menuItems.splice(idx, 1);
+    localStorage.setItem('mirchi_menu', JSON.stringify(menuItems));
     renderAdminMenuTable();
     renderMenuGrid();
     renderOrderItems();
     renderOrderCategories();
     updateAdminStats();
-    showToast(`🗑️ "${item.name}" deleted`);
+    showToast(`🗑️ "${name}" deleted`);
   }
 }
 
@@ -1053,7 +975,7 @@ Restaurant Info:
 - Phone: 0332-4187360, 0319-7833360, 0305-8368360
 - PTCL: 0235-541060, 0235-542361
 - WhatsApp: 03324187360
-- Delivery: Available across Sanghar & Sanghar (Rs. 50 delivery charge)
+- Delivery: Available across Sanghar (Rs. 50 delivery charge)
 - Payment: EasyPaisa, JazzCash, Cash on Delivery, Bank Transfer
 
 Menu Categories: Karahi, BBQ, Desi Items, Fast Food, Chinese, Pizza, Vegetable, Rolls, Fish, Salads, Paratha & Naan, Juices, Desserts, Beverages
@@ -1217,7 +1139,7 @@ document.getElementById('assistantInput')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') sendAssistantMsg();
 });
 
-// ===== WINDOW EXPORTS (required for type="module") =====
+// ===== EXPOSE FUNCTIONS TO WINDOW (required for type="module") =====
 window.adminLogin = adminLogin;
 window.adminLogout = adminLogout;
 window.submitBooking = submitBooking;
