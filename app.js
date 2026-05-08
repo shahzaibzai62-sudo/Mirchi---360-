@@ -5,13 +5,6 @@
 
 'use strict';
 
-// ===== VERSION CHECK — reset old menu data =====
-const MENU_VERSION = '2.0';
-if (localStorage.getItem('mirchi_menu_version') !== MENU_VERSION) {
-  localStorage.removeItem('mirchi_menu');
-  localStorage.setItem('mirchi_menu_version', MENU_VERSION);
-}
-
 // ===== STATE =====
 let menuItems = JSON.parse(localStorage.getItem('mirchi_menu')) || getDefaultMenu();
 let bookings = JSON.parse(localStorage.getItem('mirchi_bookings')) || [];
@@ -221,26 +214,22 @@ function getDefaultMenu() {
 
 // ===== LOADER =====
 let appInitialized = false;
-
 function hideLoaderAndInit() {
   if (appInitialized) return;
   appInitialized = true;
   const loader = document.getElementById('loader');
   if (loader) {
-    loader.classList.add('hidden');
-    setTimeout(() => { if (loader.parentNode) loader.parentNode.removeChild(loader); }, 700);
+    loader.style.opacity = '0';
+    loader.style.visibility = 'hidden';
+    loader.style.pointerEvents = 'none';
+    setTimeout(() => loader.remove(), 700);
   }
-  try { initAll(); } catch(e) { console.error('initAll error:', e); }
+  try { initAll(); } catch(e) { console.error(e); }
 }
-
-// Primary: on window load
-window.addEventListener('load', () => { setTimeout(hideLoaderAndInit, 1800); });
-
-// Fallback 1: DOMContentLoaded backup
-document.addEventListener('DOMContentLoaded', () => { setTimeout(hideLoaderAndInit, 3500); });
-
-// Fallback 2: hard cap — loader NEVER shows more than 4 seconds
-setTimeout(hideLoaderAndInit, 4000);
+// Fire as early as possible
+setTimeout(hideLoaderAndInit, 2500);
+window.addEventListener('load', () => setTimeout(hideLoaderAndInit, 800));
+document.addEventListener('DOMContentLoaded', () => setTimeout(hideLoaderAndInit, 3000));
 
 function initAll() {
   initParticles();
@@ -452,7 +441,7 @@ function renderMenuGrid() {
       <div class="menu-card reveal">
         <div class="menu-card-img">
           ${item.image
-            ? `<img src="${item.image}" alt="${item.name}" loading="eager" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="menu-card-emoji" style="display:none">${item.emoji||'🍽️'}</div>`
+            ? `<img src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="menu-card-emoji" style="display:none">${item.emoji||'🍽️'}</div>`
             : `<div class="menu-card-emoji">${item.emoji||'🍽️'}</div>`}
           <div class="menu-card-badge">${item.category}</div>
         </div>
