@@ -101,13 +101,10 @@ select option { background: var(--bg-card); }
   z-index: 99999;
   display: flex; align-items: center; justify-content: center;
   transition: opacity 0.6s ease, visibility 0.6s ease;
-  animation: loaderAutoHide 0.6s ease 3s forwards;
-  pointer-events: auto;
+  animation: loaderKill 0.5s ease 4s forwards;
 }
 .loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-@keyframes loaderAutoHide {
-  to { opacity: 0; visibility: hidden; pointer-events: none; }
-}
+@keyframes loaderKill { to { opacity: 0; visibility: hidden; pointer-events: none; display: none; } }
 .loader-inner { text-align: center; }
 .loader-logo {
   font-family: var(--font-display);
@@ -1212,3 +1209,140 @@ select option { background: var(--bg-card); }
   gap: 1.5rem; z-index: 999;
 }
 .nav-links.open .nav-link { font-size: 1.2rem; }
+
+/* ============================================
+   MOBILE FIXES — Complete Override for ≤768px
+   ============================================ */
+@media (max-width: 768px) {
+
+  /* Section padding fix — yahi cards ko half kar raha tha */
+  .section { padding: 2.5rem 0.75rem !important; }
+
+  /* Category bar — single scrollable row */
+  .menu-categories {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    justify-content: flex-start !important;
+    padding-bottom: 0.5rem !important;
+    margin-bottom: 1.25rem !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .menu-categories::-webkit-scrollbar { display: none; }
+  .cat-btn {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    padding: 0.4rem 0.9rem !important;
+    font-size: 0.7rem !important;
+  }
+
+  /* Menu grid — full width single column */
+  .menu-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+    padding: 0 !important;
+  }
+
+  /* Card — horizontal layout */
+  .menu-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    min-height: 110px !important;
+    border-radius: 14px !important;
+  }
+  .menu-card:hover { transform: none !important; }
+
+  /* Card image — left square */
+  .menu-card-img {
+    width: 110px !important;
+    min-width: 110px !important;
+    height: auto !important;
+    min-height: 110px !important;
+    flex-shrink: 0 !important;
+    border-radius: 14px 0 0 14px !important;
+  }
+  .menu-card-img img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+  .menu-card-emoji { font-size: 2.5rem !important; }
+
+  /* Badge */
+  .menu-card-badge {
+    top: 0.35rem !important;
+    right: 0.35rem !important;
+    font-size: 0.55rem !important;
+    padding: 0.15rem 0.35rem !important;
+  }
+
+  /* Card body — right side fills remaining */
+  .menu-card-body {
+    padding: 0.65rem 0.75rem !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    min-width: 0 !important;
+  }
+
+  .menu-card-name {
+    font-size: 0.92rem !important;
+    margin-bottom: 0.15rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .menu-card-desc {
+    font-size: 0.72rem !important;
+    margin-bottom: 0.4rem !important;
+    line-height: 1.3 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  /* Single price footer */
+  .menu-card-footer { margin-top: auto !important; }
+  .menu-card-price { font-size: 1rem !important; }
+  .menu-card-add {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 1rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* S/M/L size buttons — horizontal pills */
+  .menu-size-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 0.25rem !important;
+    margin-top: 0.3rem !important;
+  }
+  .size-btn {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.2rem !important;
+    padding: 0.25rem 0.4rem !important;
+    border-radius: 5px !important;
+    flex: 0 0 auto !important;
+  }
+  .size-btn:hover { transform: none !important; }
+  .size-label {
+    font-size: 0.6rem !important;
+    letter-spacing: 0.02em !important;
+    margin-bottom: 0 !important;
+    color: var(--text-light) !important;
+    text-transform: uppercase !important;
+  }
+  .size-label::after { content: ':' !important; }
+  .size-price {
+    font-size: 0.65rem !important;
+    font-weight: 700 !important;
+    color: var(--gold) !important;
+  }
+}
