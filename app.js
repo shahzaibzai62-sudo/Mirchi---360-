@@ -430,7 +430,7 @@ function renderMenuGrid() {
       <div class="menu-card reveal">
         <div class="menu-card-img">
           ${item.image
-            ? `<img src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="menu-card-emoji" style="display:none">${item.emoji||'🍽️'}</div>`
+            ? `<img src="${item.image}" alt="${item.name}" loading="eager" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="menu-card-emoji" style="display:none">${item.emoji||'🍽️'}</div>`
             : `<div class="menu-card-emoji">${item.emoji||'🍽️'}</div>`}
           <div class="menu-card-badge">${item.category}</div>
         </div>
