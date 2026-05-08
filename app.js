@@ -24,7 +24,7 @@ let cart = [];
 let currentMenuFilter = 'all';
 let currentOrderFilter = 'all';
 let adminLoggedIn = false;
-let settings = JSON.parse(localStorage.getItem('mirchi_settings')) || { waNumber: '923324187360', deliveryCharge: 100 };
+let settings = JSON.parse(localStorage.getItem('mirchi_settings')) || { waNumber: '923324187360', deliveryCharge: 50 };
 let adminCreds = JSON.parse(localStorage.getItem('mirchi_creds')) || { user: 'admin', pass: 'mirchi360' };
 let selectedTableType = '';
 let conversationHistory = [];
@@ -529,14 +529,14 @@ function renderOrderCategories() {
   const cats = ['all', ...new Set(menuItems.map(i => i.category))];
   const container = document.getElementById('orderCats');
   container.innerHTML = cats.map(cat => `
-    <button class="cat-btn ${cat === currentOrderFilter ? 'active' : ''}" onclick="filterOrderItems('${cat}', this)">${cat === 'all' ? 'All' : cat}</button>
+    <button class="cat-btn ${cat === currentOrderFilter ? 'active' : ''}" onclick="filterOrderItems('${cat}')">${cat === 'all' ? 'All' : cat}</button>
   `).join('');
 }
 
-function filterOrderItems(cat, el) {
+function filterOrderItems(cat) {
   currentOrderFilter = cat;
   document.querySelectorAll('#orderCats .cat-btn').forEach(b => b.classList.remove('active'));
-  if (el) el.classList.add('active');
+  event.target.classList.add('active');
   renderOrderItems();
 }
 
@@ -595,7 +595,7 @@ function renderCart() {
   `).join('');
 
   const subtotal = cart.reduce((a, c) => a + c.price * c.qty, 0);
-  const delivery = +settings.deliveryCharge || 100;
+  const delivery = +settings.deliveryCharge || 50;
   const total = subtotal + delivery;
 
   document.getElementById('cartSubtotal').textContent = `Rs. ${subtotal}`;
@@ -621,7 +621,7 @@ function placeOrder() {
   if (cart.length === 0) { showToast('⚠️ Your cart is empty'); return; }
 
   const subtotal = cart.reduce((a, c) => a + c.price * c.qty, 0);
-  const delivery = +settings.deliveryCharge || 100;
+  const delivery = +settings.deliveryCharge || 50;
   const total = subtotal + delivery;
 
   let orderText = `🌶️ *MIRCHI 360° - NEW ORDER*\n\n`;
@@ -932,15 +932,8 @@ async function saveItem() {
       menuItems.push({ id: ref.id, ...item });
     } else {
       const existingId = menuItems[editIdx].id;
-      if (existingId) {
-        // Pehle se Firestore mein hai — update karo
-        await setDoc(doc(db, 'menu', existingId), item);
-        menuItems[editIdx] = { id: existingId, ...item };
-      } else {
-        // Default item tha, pehli baar Firestore mein save karo
-        const ref = await addDoc(collection(db, 'menu'), item);
-        menuItems[editIdx] = { id: ref.id, ...item };
-      }
+      await setDoc(doc(db, 'menu', existingId), item);
+      menuItems[editIdx] = { id: existingId, ...item };
     }
   } catch(e) {
     console.error('Save error:', e);
@@ -1021,7 +1014,7 @@ function changePassword() {
 
 function saveSettings() {
   settings.waNumber = document.getElementById('settingWa').value.trim();
-  settings.deliveryCharge = +document.getElementById('settingDelivery').value || 100;
+  settings.deliveryCharge = +document.getElementById('settingDelivery').value || 50;
   localStorage.setItem('mirchi_settings', JSON.stringify(settings));
   showToast('✅ Settings saved');
 }
@@ -1060,7 +1053,7 @@ Restaurant Info:
 - Phone: 0332-4187360, 0319-7833360, 0305-8368360
 - PTCL: 0235-541060, 0235-542361
 - WhatsApp: 03324187360
-- Delivery: Available across Sanghar & surrounding areas (Rs. 100 delivery charge)
+- Delivery: Available across Sanghar & Sanghar (Rs. 50 delivery charge)
 - Payment: EasyPaisa, JazzCash, Cash on Delivery, Bank Transfer
 
 Menu Categories: Karahi, BBQ, Desi Items, Fast Food, Chinese, Pizza, Vegetable, Rolls, Fish, Salads, Paratha & Naan, Juices, Desserts, Beverages
@@ -1116,7 +1109,7 @@ function getFallbackResponse(msg) {
     return `🍽️ <strong>Our Menu</strong><br><br>We offer: Karahi, BBQ, Biryani, Pizza, Chinese, Fast Food, Fish, Rolls, Desserts & more!<br><br><a href="#menu" style="color:var(--gold)">Browse our full menu</a> or call <strong>0332-4187360</strong> 🌶️`;
   }
   if (msg.includes('order') || msg.includes('deliver')) {
-    return `📦 <strong>Online Ordering</strong><br><br>Use our <a href="#order" style="color:var(--gold)">Order section</a> to place your order!<br><br>Delivery charge: Rs. 100<br>Payment: EasyPaisa, JazzCash, COD, Bank Transfer<br><br>Or WhatsApp us: <a href="https://wa.me/923324187360" style="color:var(--gold)">03324187360</a> 🚴`;
+    return `📦 <strong>Online Ordering</strong><br><br>Use our <a href="#order" style="color:var(--gold)">Order section</a> to place your order!<br><br>Delivery charge: Rs. 50<br>Payment: EasyPaisa, JazzCash, COD, Bank Transfer<br><br>Or WhatsApp us: <a href="https://wa.me/923324187360" style="color:var(--gold)">03324187360</a> 🚴`;
   }
   if (msg.includes('location') || msg.includes('address') || msg.includes('where')) {
     return `📍 <strong>Our Location</strong><br><br>Hyderabad Road,<br>Sanghar, Sindh, Pakistan<br><br><a href="https://maps.app.goo.gl/iECvdpyygA3gvBbB6" target="_blank" style="color:var(--gold)">Open in Google Maps</a> 🗺️`;
@@ -1242,6 +1235,8 @@ window.saveSettings = saveSettings;
 window.toggleAssistant = toggleAssistant;
 window.sendAssistantMsg = sendAssistantMsg;
 window.quickMsg = quickMsg;
-window.addToCartWithSize = addToCartWithSize;
-window.changeCartQty = changeCartQty;
-window.filterOrderItems = filterOrderItems;
+window.setMenuFilter = setMenuFilter;
+window.setOrderFilter = setOrderFilter;
+window.addToCart = addToCart;
+window.updateQty = updateQty;
+window.removeFromCart = removeFromCart;
