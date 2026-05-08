@@ -932,8 +932,15 @@ async function saveItem() {
       menuItems.push({ id: ref.id, ...item });
     } else {
       const existingId = menuItems[editIdx].id;
-      await setDoc(doc(db, 'menu', existingId), item);
-      menuItems[editIdx] = { id: existingId, ...item };
+      if (existingId) {
+        // Pehle se Firestore mein hai — update karo
+        await setDoc(doc(db, 'menu', existingId), item);
+        menuItems[editIdx] = { id: existingId, ...item };
+      } else {
+        // Default item tha, pehli baar Firestore mein save karo
+        const ref = await addDoc(collection(db, 'menu'), item);
+        menuItems[editIdx] = { id: ref.id, ...item };
+      }
     }
   } catch(e) {
     console.error('Save error:', e);
