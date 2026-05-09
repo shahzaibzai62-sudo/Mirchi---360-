@@ -40,19 +40,77 @@ function sanitize(str) {
 // ===== FIREBASE HELPERS =====
 
 // Load menu from Firestore; fallback to default if empty
-async function loadMenuFromFirebase() {
-  try {
-    const snapshot = await db.collection('menu').orderBy('order', 'asc').get();
-    if (!snapshot.empty) {
-      menuItems = snapshot.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
-    } else {
-      menuItems = getDefaultMenu();
-      await saveAllMenuToFirebase();
-    }
-  } catch (e) {
-    console.error('Firebase menu load error:', e);
-    menuItems = getDefaultMenu();
-  }
+// ===== REAL-TIME FIREBASE LISTENERS =====
+// These use onSnapshot() instead of get() so ALL devices update instantly
+// when admin makes any change — no page refresh needed.
+
+let _menuListenerReady = false;
+let _bookingsListenerReady = false;
+let _settingsListenerReady = false;
+
+function loadMenuFromFirebase() {
+  return new Promise((resolve) => {
+    db.collection('menu').orderBy('order', 'asc').onSnapshot(snapshot => {
+      if (!snapshot.empty) {
+        menuItems = snapshot.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+      } else if (!_menuListenerReady) {
+        // First time — seed default menu
+        menuItems = getDefaultMenu();
+        saveAllMenuToFirebase();
+      }
+      // Re-render everywhere when data changes
+      if (_menuListenerReady) {
+        renderMenuGrid();
+        renderOrderItems();
+        renderOrderCategories();
+        renderAdminMenuTable();
+        updateAdminStats();
+      }
+      if (!_menuListenerReady) { _menuListenerReady = true; resolve(); }
+    }, e => {
+      console.error('Firebase menu listener error:', e);
+      if (!_menuListenerReady) { menuItems = getDefaultMenu(); _menuListenerReady = true; resolve(); }
+    });
+  });
+}
+
+function loadBookingsFromFirebase() {
+  return new Promise((resolve) => {
+    db.collection('bookings').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+      bookings = snapshot.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+      if (_bookingsListenerReady) {
+        renderAdminBookingsTable();
+        updateAdminStats();
+      }
+      if (!_bookingsListenerReady) { _bookingsListenerReady = true; resolve(); }
+    }, e => {
+      console.error('Firebase bookings listener error:', e);
+      if (!_bookingsListenerReady) { bookings = []; _bookingsListenerReady = true; resolve(); }
+    });
+  });
+}
+
+function loadSettingsFromFirebase() {
+  return new Promise((resolve) => {
+    db.collection('settings').doc('main').onSnapshot(doc => {
+      if (doc.exists) {
+        const data = doc.data();
+        settings.waNumber       = data.waNumber       || '923324187360';
+        settings.deliveryCharge = data.deliveryCharge != null ? data.deliveryCharge : 100;
+        // Update admin UI inputs live
+        const waEl = document.getElementById('settingWa');
+        const dcEl = document.getElementById('settingDelivery');
+        if (waEl) waEl.value = settings.waNumber;
+        if (dcEl) dcEl.value = settings.deliveryCharge;
+        // Refresh cart totals on all devices
+        if (cart.length > 0) renderCart();
+      }
+      if (!_settingsListenerReady) { _settingsListenerReady = true; resolve(); }
+    }, e => {
+      console.error('Firebase settings listener error:', e);
+      if (!_settingsListenerReady) { _settingsListenerReady = true; resolve(); }
+    });
+  });
 }
 
 // Save all menu items to Firestore (used on first-time seed)
@@ -87,17 +145,6 @@ async function deleteMenuItemFromFirebase(id) {
   catch (e) { console.error('Firebase delete error:', e); }
 }
 
-// Load bookings from Firestore
-async function loadBookingsFromFirebase() {
-  try {
-    const snapshot = await db.collection('bookings').orderBy('timestamp', 'desc').get();
-    bookings = snapshot.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
-  } catch (e) {
-    console.error('Firebase bookings load error:', e);
-    bookings = [];
-  }
-}
-
 // Save a new booking to Firestore
 async function saveBookingToFirebase(booking) {
   try {
@@ -113,25 +160,7 @@ async function deleteBookingFromFirebase(id) {
   catch (e) { console.error('Firebase delete booking error:', e); }
 }
 
-// ===== SETTINGS — Firebase Firestore (syncs across all devices) =====
-async function loadSettingsFromFirebase() {
-  try {
-    const doc = await db.collection('settings').doc('main').get();
-    if (doc.exists) {
-      const data = doc.data();
-      settings.waNumber      = data.waNumber      || '923324187360';
-      settings.deliveryCharge = data.deliveryCharge != null ? data.deliveryCharge : 100;
-      // Update admin UI if already rendered
-      const waEl  = document.getElementById('settingWa');
-      const dcEl  = document.getElementById('settingDelivery');
-      if (waEl) waEl.value = settings.waNumber;
-      if (dcEl) dcEl.value = settings.deliveryCharge;
-      // Refresh cart if visible
-      if (cart.length > 0) renderCart();
-    }
-  } catch (e) { console.error('Settings load error:', e); }
-}
-
+// Save settings to Firestore — onSnapshot listener above will sync all devices automatically
 async function saveSettingsToFirebase() {
   try {
     await db.collection('settings').doc('main').set({
