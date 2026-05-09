@@ -265,8 +265,8 @@
       </div>
       <div class="cart-totals" id="cartTotals" style="display:none">
         <div class="cart-total-row"><span>Subtotal</span><span id="cartSubtotal">Rs. 0</span></div>
-        <div class="cart-total-row"><span>Delivery</span><span>Rs. 50</span></div>
-        <div class="cart-total-row cart-total-final"><span>Total</span><span id="cartTotal">Rs. 50</span></div>
+        <div class="cart-total-row"><span>Delivery</span><span id="cartDelivery">Rs. 100</span></div>
+        <div class="cart-total-row cart-total-final"><span>Total</span><span id="cartTotal">Rs. 100</span></div>
       </div>
       <div class="delivery-form" id="deliveryForm">
         <h4>Delivery Details</h4>
@@ -399,18 +399,17 @@
     <div class="admin-login-card">
       <div class="admin-login-logo">🌶️</div>
       <h3>Secure Admin Access</h3>
-      <p>Enter your credentials to manage Mirchi 360</p>
+      <p>Firebase Authentication se protected</p>
       <div class="form-group">
-        <label>Username</label>
-        <input type="text" id="adminUser" placeholder="Username" autocomplete="off"/>
+        <label>Email</label>
+        <input type="email" id="adminUser" placeholder="admin@mirchi360.com" autocomplete="email"/>
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" id="adminPass" placeholder="Password" autocomplete="off"/>
+        <input type="password" id="adminPass" placeholder="Password" autocomplete="current-password"/>
       </div>
-      <div id="loginError" class="login-error" style="display:none">❌ Invalid credentials. Try again.</div>
+      <div id="loginError" class="login-error" style="display:none"></div>
       <button class="btn-primary btn-full" onclick="adminLogin()">Login to Admin Panel</button>
-      <div class="admin-hint">Default: admin / mirchi360</div>
     </div>
   </div>
 
