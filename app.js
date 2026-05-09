@@ -25,7 +25,7 @@ let cart = [];
 let currentMenuFilter = 'all';
 let currentOrderFilter = 'all';
 let adminLoggedIn = false;
-let settings = JSON.parse(localStorage.getItem('mirchi_settings')) || { waNumber: '923324187360', deliveryCharge: 50 };
+let settings = { waNumber: '923324187360', deliveryCharge: 100 };
 // Admin auth handled by Firebase Authentication
 let selectedTableType = '';
 let conversationHistory = [];
@@ -111,6 +111,34 @@ async function saveBookingToFirebase(booking) {
 async function deleteBookingFromFirebase(id) {
   try { await db.collection('bookings').doc(id).delete(); }
   catch (e) { console.error('Firebase delete booking error:', e); }
+}
+
+// ===== SETTINGS — Firebase Firestore (syncs across all devices) =====
+async function loadSettingsFromFirebase() {
+  try {
+    const doc = await db.collection('settings').doc('main').get();
+    if (doc.exists) {
+      const data = doc.data();
+      settings.waNumber      = data.waNumber      || '923324187360';
+      settings.deliveryCharge = data.deliveryCharge != null ? data.deliveryCharge : 100;
+      // Update admin UI if already rendered
+      const waEl  = document.getElementById('settingWa');
+      const dcEl  = document.getElementById('settingDelivery');
+      if (waEl) waEl.value = settings.waNumber;
+      if (dcEl) dcEl.value = settings.deliveryCharge;
+      // Refresh cart if visible
+      if (cart.length > 0) renderCart();
+    }
+  } catch (e) { console.error('Settings load error:', e); }
+}
+
+async function saveSettingsToFirebase() {
+  try {
+    await db.collection('settings').doc('main').set({
+      waNumber:       settings.waNumber,
+      deliveryCharge: settings.deliveryCharge
+    });
+  } catch (e) { console.error('Settings save error:', e); }
 }
 
 // ===== DEFAULT MENU — Full menu from images with sizes & photos =====
@@ -336,7 +364,7 @@ async function initAll() {
   initBookingDateMin();
 
   // Load data from Firebase first
-  await Promise.all([loadMenuFromFirebase(), loadBookingsFromFirebase()]);
+  await Promise.all([loadMenuFromFirebase(), loadBookingsFromFirebase(), loadSettingsFromFirebase()]);
 
   initMenu();
   initOrderSection();
@@ -640,7 +668,7 @@ function renderCart() {
   `).join('');
 
   const subtotal = cart.reduce((a, c) => a + c.price * c.qty, 0);
-  const delivery = +settings.deliveryCharge || 50;
+  const delivery = +settings.deliveryCharge || 100;
   const total = subtotal + delivery;
 
   document.getElementById('cartSubtotal').textContent = `Rs. ${subtotal}`;
@@ -667,7 +695,7 @@ function placeOrder() {
   if (cart.length === 0) { showToast('⚠️ Your cart is empty'); return; }
 
   const subtotal = cart.reduce((a, c) => a + c.price * c.qty, 0);
-  const delivery = +settings.deliveryCharge || 50;
+  const delivery = +settings.deliveryCharge || 100;
   const total = subtotal + delivery;
 
   let orderText = `🌶️ *MIRCHI 360° - NEW ORDER*\n\n`;
@@ -1106,10 +1134,10 @@ async function changePassword() {
 
 function saveSettings() {
   settings.waNumber = document.getElementById('settingWa').value.trim();
-  settings.deliveryCharge = +document.getElementById('settingDelivery').value || 50;
-  localStorage.setItem('mirchi_settings', JSON.stringify(settings));
+  settings.deliveryCharge = +document.getElementById('settingDelivery').value || 100;
+  saveSettingsToFirebase(); // Save to Firebase — syncs across all devices
   if (cart.length > 0) renderCart(); // refresh cart totals with new delivery charge
-  showToast('✅ Settings saved');
+  showToast('✅ Settings saved — all devices pe update ho jayega');
 }
 
 // ===== AI ASSISTANT =====
@@ -1138,17 +1166,17 @@ async function sendAssistantMsg() {
   const typingId = appendTyping();
 
   try {
-    const systemPrompt = `You are the friendly AI assistant for MIRCHI 360°, a premium Pakistani restaurant in Tando Adam, Sanghar, Pakistan. 
+    const systemPrompt = `You are the friendly AI assistant for MIRCHI 360°, a premium Pakistani restaurant in Sanghar, Sindh, Pakistan. 
 
 Restaurant Info:
 - Name: Mirchi 360°
 - Tagline: Three Sixty Degrees of Flavour
-- Location: Tando Adam-Sanghar Road, Tando Adam, Sindh, Pakistan
+- Location: Hyderabad Road, Sanghar, Sindh, Pakistan
 - Hours: Daily 12:00 PM – 1:00 AM
 - Phone: 0332-4187360, 0319-7833360, 0305-8368360
 - PTCL: 0235-541060, 0235-542361
 - WhatsApp: 03324187360
-- Delivery: Available across Tando Adam & Sanghar (Rs. 50 delivery charge)
+- Delivery: Available across Sanghar (Rs. 100 delivery charge)
 - Payment: EasyPaisa, JazzCash, Cash on Delivery, Bank Transfer
 
 Menu Categories: Karahi, BBQ, Desi Items, Fast Food, Chinese, Pizza, Vegetable, Rolls, Fish, Salads, Paratha & Naan, Juices, Desserts, Beverages
@@ -1209,10 +1237,10 @@ function getFallbackResponse(msg) {
     return `🍽️ <strong>Our Menu</strong><br><br>We offer: Karahi, BBQ, Biryani, Pizza, Chinese, Fast Food, Fish, Rolls, Desserts & more!<br><br><a href="#menu" style="color:var(--gold)">Browse our full menu</a> or call <strong>0332-4187360</strong> 🌶️`;
   }
   if (msg.includes('order') || msg.includes('deliver')) {
-    return `📦 <strong>Online Ordering</strong><br><br>Use our <a href="#order" style="color:var(--gold)">Order section</a> to place your order!<br><br>Delivery charge: Rs. 50<br>Payment: EasyPaisa, JazzCash, COD, Bank Transfer<br><br>Or WhatsApp us: <a href="https://wa.me/923324187360" style="color:var(--gold)">03324187360</a> 🚴`;
+    return `📦 <strong>Online Ordering</strong><br><br>Use our <a href="#order" style="color:var(--gold)">Order section</a> to place your order!<br><br>Delivery charge: Rs. 100<br>Payment: EasyPaisa, JazzCash, COD, Bank Transfer<br><br>Or WhatsApp us: <a href="https://wa.me/923324187360" style="color:var(--gold)">03324187360</a> 🚴`;
   }
   if (msg.includes('location') || msg.includes('address') || msg.includes('where')) {
-    return `📍 <strong>Our Location</strong><br><br>Sanghar-Hyderabad Road,<br>Sanghar, Sindh, Pakistan<br><br><a href="https://maps.app.goo.gl/iECvdpyygA3gvBbB6" target="_blank" style="color:var(--gold)">Open in Google Maps</a> 🗺️`;
+    return `📍 <strong>Our Location</strong><br><br>Hyderabad Road,<br>Sanghar, Sindh, Pakistan<br><br><a href="https://maps.app.goo.gl/iECvdpyygA3gvBbB6" target="_blank" style="color:var(--gold)">Open in Google Maps</a> 🗺️`;
   }
   if (msg.includes('price') || msg.includes('cost') || msg.includes('rate')) {
     return `💰 <strong>Our Prices</strong><br><br>• Chicken Karahi: Rs. 650<br>• Mutton Karahi: Rs. 950<br>• BBQ Platter: Rs. 750<br>• Biryani: Rs. 350<br>• Pizza: Rs. 700<br>• Burger: Rs. 280<br><br><a href="#menu" style="color:var(--gold)">See full menu</a> 🌶️`;
