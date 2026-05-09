@@ -1,18 +1,30 @@
 /* =============================================
-   MIRCHI 360° — app.js
-   All functionality: Menu, Booking, Cart, Admin, AI Assistant
+   MIRCHI 360° — app.js  (Firebase Edition)
 ============================================= */
-
 'use strict';
 
+// ===== FIREBASE =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, setDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const _fbApp = initializeApp({
+  apiKey: "AIzaSyC7I-qQ7vFWOfsaAGYh9Q35RkV60j_hkQA",
+  authDomain: "mirchi-360-new.firebaseapp.com",
+  projectId: "mirchi-360-new",
+  storageBucket: "mirchi-360-new.firebasestorage.app",
+  messagingSenderId: "521251453403",
+  appId: "1:521251453403:web:0d697e7c1a14528f8a8ffe"
+});
+const db = getFirestore(_fbApp);
+
 // ===== STATE =====
-let menuItems = JSON.parse(localStorage.getItem('mirchi_menu')) || getDefaultMenu();
-let bookings = JSON.parse(localStorage.getItem('mirchi_bookings')) || [];
+let menuItems = [];
+let bookings = [];
 let cart = [];
 let currentMenuFilter = 'all';
 let currentOrderFilter = 'all';
 let adminLoggedIn = false;
-let settings = JSON.parse(localStorage.getItem('mirchi_settings')) || { waNumber: '923324187360', deliveryCharge: 50 };
+let settings = JSON.parse(localStorage.getItem('mirchi_settings')) || { waNumber: '923324187360', deliveryCharge: 100 };
 let adminCreds = JSON.parse(localStorage.getItem('mirchi_creds')) || { user: 'admin', pass: 'mirchi360' };
 let selectedTableType = '';
 let conversationHistory = [];
@@ -212,13 +224,66 @@ function getDefaultMenu() {
   ];
 }
 
-// ===== LOADER =====
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    document.getElementById('loader').classList.add('hidden');
-    initAll();
-  }, 2200);
-});
+// ===== LOADER + FIREBASE =====
+let _appReady = false;
+
+function _hideLoader() {
+  if (_appReady) return;
+  _appReady = true;
+  const l = document.getElementById('loader');
+  if (l) { l.style.opacity='0'; l.style.visibility='hidden'; l.style.pointerEvents='none'; setTimeout(()=>{ try{l.remove();}catch(e){} }, 800); }
+}
+
+async function _loadAndInit() {
+  // UI pehle show karo — stuck nahi hoga
+  _hideLoader();
+  initAll();
+
+  try {
+    const menuSnap = await getDocs(collection(db, 'menu'));
+    if (!menuSnap.empty) {
+      menuItems = menuSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } else {
+      // Pehle default menu dikhao
+      menuItems = getDefaultMenu();
+      renderMenuGrid(); renderOrderItems(); renderOrderCategories();
+      renderAdminMenuTable(); updateAdminStats();
+      // Background mein Firestore mein save karo
+      (async () => {
+        const seeded = [];
+        for (const item of getDefaultMenu()) {
+          try { const r = await addDoc(collection(db, 'menu'), item); seeded.push({ id: r.id, ...item }); }
+          catch(e) { seeded.push(item); }
+        }
+        menuItems = seeded;
+      })();
+    }
+
+    const bSnap = await getDocs(query(collection(db, 'bookings'), orderBy('timestamp', 'desc')));
+    bookings = bSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    onSnapshot(collection(db, 'bookings'), snap => {
+      bookings = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+      renderAdminBookingsTable(); updateAdminStats();
+    });
+
+    onSnapshot(collection(db, 'menu'), snap => {
+      menuItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderMenuGrid(); renderOrderItems(); renderOrderCategories();
+      renderAdminMenuTable(); updateAdminStats();
+    });
+
+  } catch(e) {
+    console.error('Firebase error:', e);
+    if (menuItems.length === 0) {
+      menuItems = getDefaultMenu();
+      renderMenuGrid(); renderOrderItems(); renderOrderCategories();
+    }
+  }
+}
+
+window.addEventListener('load', () => _loadAndInit());
 
 function initAll() {
   initParticles();
@@ -233,6 +298,7 @@ function initAll() {
   renderAdminMenuTable();
   renderAdminBookingsTable();
   updateAdminStats();
+  loadSettingsUI();
 }
 
 // ===== PARTICLE CANVAS =====
@@ -317,11 +383,6 @@ function initCursor() {
     ring.style.left = ringX + 'px';
     ring.style.top = ringY + 'px';
   });
-
-  setInterval(() => {
-    const e = { clientX: parseFloat(ring.style.left||0), clientY: parseFloat(ring.style.top||0) };
-    // smooth follow
-  }, 16);
 
   document.addEventListener('mousedown', () => { dot.classList.add('clicked'); ring.classList.add('clicked'); });
   document.addEventListener('mouseup', () => { dot.classList.remove('clicked'); ring.classList.remove('clicked'); });
@@ -468,14 +529,14 @@ function renderOrderCategories() {
   const cats = ['all', ...new Set(menuItems.map(i => i.category))];
   const container = document.getElementById('orderCats');
   container.innerHTML = cats.map(cat => `
-    <button class="cat-btn ${cat === currentOrderFilter ? 'active' : ''}" onclick="filterOrderItems('${cat}')">${cat === 'all' ? 'All' : cat}</button>
+    <button class="cat-btn ${cat === currentOrderFilter ? 'active' : ''}" onclick="filterOrderItems('${cat}', this)">${cat === 'all' ? 'All' : cat}</button>
   `).join('');
 }
 
-function filterOrderItems(cat) {
+function filterOrderItems(cat, el) {
   currentOrderFilter = cat;
   document.querySelectorAll('#orderCats .cat-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  if (el) el.classList.add('active');
   renderOrderItems();
 }
 
@@ -534,11 +595,14 @@ function renderCart() {
   `).join('');
 
   const subtotal = cart.reduce((a, c) => a + c.price * c.qty, 0);
-  const delivery = +settings.deliveryCharge || 50;
+  const delivery = +settings.deliveryCharge || 100;
   const total = subtotal + delivery;
 
   document.getElementById('cartSubtotal').textContent = `Rs. ${subtotal}`;
   document.getElementById('cartTotal').textContent = `Rs. ${total}`;
+  // Update delivery charge display in cart totals
+  const deliveryEl = document.querySelector('#cartTotals .cart-total-row:nth-child(2) span:last-child');
+  if (deliveryEl) deliveryEl.textContent = `Rs. ${delivery}`;
   cartTotals.style.display = 'block';
   if (placeBtn) placeBtn.disabled = false;
 }
@@ -560,7 +624,7 @@ function placeOrder() {
   if (cart.length === 0) { showToast('⚠️ Your cart is empty'); return; }
 
   const subtotal = cart.reduce((a, c) => a + c.price * c.qty, 0);
-  const delivery = +settings.deliveryCharge || 50;
+  const delivery = +settings.deliveryCharge || 100;
   const total = subtotal + delivery;
 
   let orderText = `🌶️ *MIRCHI 360° - NEW ORDER*\n\n`;
@@ -576,6 +640,14 @@ function placeOrder() {
 
   const wa = settings.waNumber || '923324187360';
   window.open(`https://wa.me/${wa}?text=${encodeURIComponent(orderText)}`, '_blank');
+  // Clear cart after placing order
+  cart = [];
+  renderCart();
+  document.getElementById('delName').value = '';
+  document.getElementById('delPhone').value = '';
+  document.getElementById('delAddress').value = '';
+  document.getElementById('delNotes').value = '';
+  showToast('✅ Order sent via WhatsApp!');
 }
 
 // ===== BOOKING =====
@@ -596,7 +668,7 @@ function initBookingDateMin() {
   if (dateInput) dateInput.min = today;
 }
 
-function submitBooking() {
+async function submitBooking() {
   const name = document.getElementById('bookName').value.trim();
   const phone = document.getElementById('bookPhone').value.trim();
   const date = document.getElementById('bookDate').value;
@@ -607,10 +679,11 @@ function submitBooking() {
 
   if (!name || !phone || !date || !time || !guests) { showToast('⚠️ Please fill all required fields'); return; }
 
-  // Save to local storage
-  const booking = { id: Date.now(), name, phone, date, time, guests, tableType, notes };
-  bookings.push(booking);
-  localStorage.setItem('mirchi_bookings', JSON.stringify(bookings));
+  const booking = { name, phone, date, time, guests, tableType, notes, timestamp: Date.now() };
+  try {
+    const ref = await addDoc(collection(db, 'bookings'), booking);
+    bookings.unshift({ id: ref.id, ...booking });
+  } catch(e) { console.error('Booking error:', e); }
 
   // WhatsApp message
   let msg = `🌶️ *MIRCHI 360° - TABLE RESERVATION*\n\n`;
@@ -667,6 +740,10 @@ function adminLogout() {
 }
 
 // Admin tabs
+document.querySelectorAll('.admin-tab-content').forEach(c => c.style.display = 'none');
+const firstTab = document.querySelector('.admin-tab-content');
+if (firstTab) firstTab.style.display = 'block';
+
 document.querySelectorAll('.admin-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
@@ -733,10 +810,13 @@ function updateAdminStats() {
   if (statBookings) statBookings.textContent = bookings.length;
 }
 
-function clearBookings() {
+async function clearBookings() {
   if (confirm('Clear all reservations? This cannot be undone.')) {
+    try {
+      const snap = await getDocs(collection(db, 'bookings'));
+      for (const d of snap.docs) await deleteDoc(doc(db, 'bookings', d.id));
+    } catch(e) { console.error(e); }
     bookings = [];
-    localStorage.setItem('mirchi_bookings', JSON.stringify(bookings));
     renderAdminBookingsTable();
     updateAdminStats();
     showToast('🗑️ All reservations cleared');
@@ -830,7 +910,7 @@ function closeItemModal() {
   document.getElementById('itemModal').style.display = 'none';
 }
 
-function saveItem() {
+async function saveItem() {
   const name     = document.getElementById('itemName').value.trim();
   const category = document.getElementById('itemCategory').value;
   const emoji    = document.getElementById('itemEmoji').value.trim() || '🍽️';
@@ -861,10 +941,28 @@ function saveItem() {
 
   const item = { name, category, emoji, desc, image, sizes };
 
-  if (editIdx === -1) menuItems.push(item);
-  else menuItems[editIdx] = item;
+  try {
+    if (editIdx === -1) {
+      const ref = await addDoc(collection(db, 'menu'), item);
+      menuItems.push({ id: ref.id, ...item });
+    } else {
+      const existingId = menuItems[editIdx].id;
+      if (existingId) {
+        // Pehle se Firestore mein hai — update karo
+        await setDoc(doc(db, 'menu', existingId), item);
+        menuItems[editIdx] = { id: existingId, ...item };
+      } else {
+        // Default item tha, pehli baar Firestore mein save karo
+        const ref = await addDoc(collection(db, 'menu'), item);
+        menuItems[editIdx] = { id: ref.id, ...item };
+      }
+    }
+  } catch(e) {
+    console.error('Save error:', e);
+    showToast('⚠️ Save failed — check internet');
+    return;
+  }
 
-  localStorage.setItem('mirchi_menu', JSON.stringify(menuItems));
   closeItemModal();
   renderAdminMenuTable();
   renderMenuGrid();
@@ -874,17 +972,19 @@ function saveItem() {
   showToast(`✅ "${name}" ${editIdx === -1 ? 'add' : 'update'} ho gaya`);
 }
 
-function deleteItem(idx) {
-  const name = menuItems[idx].name;
-  if (confirm(`Delete "${name}"?`)) {
+async function deleteItem(idx) {
+  const item = menuItems[idx];
+  if (confirm(`Delete "${item.name}"?`)) {
+    try {
+      if (item.id) await deleteDoc(doc(db, 'menu', item.id));
+    } catch(e) { console.error('Delete error:', e); }
     menuItems.splice(idx, 1);
-    localStorage.setItem('mirchi_menu', JSON.stringify(menuItems));
     renderAdminMenuTable();
     renderMenuGrid();
     renderOrderItems();
     renderOrderCategories();
     updateAdminStats();
-    showToast(`🗑️ "${name}" deleted`);
+    showToast(`🗑️ "${item.name}" deleted`);
   }
 }
 
@@ -936,9 +1036,16 @@ function changePassword() {
 
 function saveSettings() {
   settings.waNumber = document.getElementById('settingWa').value.trim();
-  settings.deliveryCharge = +document.getElementById('settingDelivery').value || 50;
+  settings.deliveryCharge = +document.getElementById('settingDelivery').value || 100;
   localStorage.setItem('mirchi_settings', JSON.stringify(settings));
   showToast('✅ Settings saved');
+}
+
+function loadSettingsUI() {
+  const waEl = document.getElementById('settingWa');
+  const delEl = document.getElementById('settingDelivery');
+  if (waEl) waEl.value = settings.waNumber || '923324187360';
+  if (delEl) delEl.value = settings.deliveryCharge || 100;
 }
 
 // ===== AI ASSISTANT =====
@@ -975,7 +1082,7 @@ Restaurant Info:
 - Phone: 0332-4187360, 0319-7833360, 0305-8368360
 - PTCL: 0235-541060, 0235-542361
 - WhatsApp: 03324187360
-- Delivery: Available across Sanghar (Rs. 50 delivery charge)
+- Delivery: Available across Sanghar & surrounding areas (Rs. 100 delivery charge)
 - Payment: EasyPaisa, JazzCash, Cash on Delivery, Bank Transfer
 
 Menu Categories: Karahi, BBQ, Desi Items, Fast Food, Chinese, Pizza, Vegetable, Rolls, Fish, Salads, Paratha & Naan, Juices, Desserts, Beverages
@@ -1031,7 +1138,7 @@ function getFallbackResponse(msg) {
     return `🍽️ <strong>Our Menu</strong><br><br>We offer: Karahi, BBQ, Biryani, Pizza, Chinese, Fast Food, Fish, Rolls, Desserts & more!<br><br><a href="#menu" style="color:var(--gold)">Browse our full menu</a> or call <strong>0332-4187360</strong> 🌶️`;
   }
   if (msg.includes('order') || msg.includes('deliver')) {
-    return `📦 <strong>Online Ordering</strong><br><br>Use our <a href="#order" style="color:var(--gold)">Order section</a> to place your order!<br><br>Delivery charge: Rs. 50<br>Payment: EasyPaisa, JazzCash, COD, Bank Transfer<br><br>Or WhatsApp us: <a href="https://wa.me/923324187360" style="color:var(--gold)">03324187360</a> 🚴`;
+    return `📦 <strong>Online Ordering</strong><br><br>Use our <a href="#order" style="color:var(--gold)">Order section</a> to place your order!<br><br>Delivery charge: Rs. 100<br>Payment: EasyPaisa, JazzCash, COD, Bank Transfer<br><br>Or WhatsApp us: <a href="https://wa.me/923324187360" style="color:var(--gold)">03324187360</a> 🚴`;
   }
   if (msg.includes('location') || msg.includes('address') || msg.includes('where')) {
     return `📍 <strong>Our Location</strong><br><br>Hyderabad Road,<br>Sanghar, Sindh, Pakistan<br><br><a href="https://maps.app.goo.gl/iECvdpyygA3gvBbB6" target="_blank" style="color:var(--gold)">Open in Google Maps</a> 🗺️`;
@@ -1139,7 +1246,7 @@ document.getElementById('assistantInput')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') sendAssistantMsg();
 });
 
-// ===== EXPOSE FUNCTIONS TO WINDOW (required for type="module") =====
+// ===== WINDOW EXPORTS (required for type="module") =====
 window.adminLogin = adminLogin;
 window.adminLogout = adminLogout;
 window.submitBooking = submitBooking;
@@ -1157,8 +1264,6 @@ window.saveSettings = saveSettings;
 window.toggleAssistant = toggleAssistant;
 window.sendAssistantMsg = sendAssistantMsg;
 window.quickMsg = quickMsg;
-window.setMenuFilter = setMenuFilter;
-window.setOrderFilter = setOrderFilter;
-window.addToCart = addToCart;
-window.updateQty = updateQty;
-window.removeFromCart = removeFromCart;
+window.addToCartWithSize = addToCartWithSize;
+window.changeCartQty = changeCartQty;
+window.filterOrderItems = filterOrderItems;
